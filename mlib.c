@@ -2,11 +2,12 @@
 
 #include <math.h>
 #include <stdint.h>
-void draw_tri(float faptr[6], int bw, int bh, uint32_t (*bptr)[bw], uint32_t color) {
+#include <inttypes.h>
+#include <stdio.h>
+void draw_tri(float fpa[6], int bw, int bh, uint32_t *bptr, uint32_t color) {
     // uuuuh NOTE we will be using the standard graphics convection for x and y
     // this mean y goes downwards and the origin is the top left corner
-    // its gonna be less of a headache i swear...
-    float fpa[6] = *faptr;
+    // its gonna be less of a headache i swear
     float minx = (fpa[0] > fpa[2]) ? (fpa[4] > fpa[2] ? fpa[2] : fpa[4]) : (fpa[4] > fpa[0] ? fpa[0] : fpa[4]);
     float miny = (fpa[1] > fpa[3]) ? (fpa[5] > fpa[3] ? fpa[3] : fpa[5]) : (fpa[5] > fpa[1] ? fpa[1] : fpa[5]);
     float maxx = (fpa[2] > fpa[0]) ? (fpa[2] > fpa[4] ? fpa[2] : fpa[4]) : (fpa[0] > fpa[4] ? fpa[0] : fpa[4]);
@@ -35,8 +36,13 @@ void draw_tri(float faptr[6], int bw, int bh, uint32_t (*bptr)[bw], uint32_t col
                 intriangle &= ((tx - fpa[0]) * (fpa[3] - fpa[1]) - (fpa[2] - fpa[0]) * (ty - fpa[1])) > 0;
                 intriangle &= ((tx - fpa[2]) * (fpa[5] - fpa[3]) - (fpa[4] - fpa[2]) * (ty - fpa[3])) > 0;
                 intriangle &= ((tx - fpa[4]) * (fpa[1] - fpa[5]) - (fpa[0] - fpa[4]) * (ty - fpa[5])) > 0;
+                //so we're flattening the array
+                //standard deal, left to right but top to bottom, like this
+                //0 1 2
+                //3 4 5
+                //6 7 8
                 if (intriangle) {
-                    //FINISH LATER
+                    *bptr[px + bw * py] = color;
                 }
             }
         }
