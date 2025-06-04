@@ -1,19 +1,14 @@
 #include <iostream>
 #include <string.h>
-void boardmod(int xind, int yind, int bw, int bh, int val, long* board){
-    board[xind + yind * bh] = val;
-}
-void printarr(long* board, int bw, int bh){
-    for(int i=0;i<bh;i++){
-        for(int j=0;j<bw;j++){
-            std::cout << board[j + i * bw] << ' ';
-        }
-        std::cout << '\n';
-    }
-}
+#include "mlib.h"
 int main(){
-    long board[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-    printarr(board, 3, 3);
-    boardmod(1, 1, 3, 3, 200, board);
-    printarr(board, 3, 3);
+    vec2 v0 = vec2(1, 0);
+    vec2 v1 = vec2(0, 1);
+    v0.desc();
+    (v0+v1).desc();
+    (v0-v1).desc();
+    (v0 * 4.0).desc();
+    (v0 / 4.0).desc();
+    (v1.norm()).desc();
+    return 0;
 }
