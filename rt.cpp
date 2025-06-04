@@ -15,9 +15,9 @@ int main() {
             setpix(poiarr, iw, ih, scrarr, col);
         }
     }
-    float poiarr[6] = {0.0, 0.0, 100.0, 100.0, 50.0, 200.0};
+    float poiarr[6] = {0.0, 0.0, 200.0, 100.0, 100.0, 200.0};
     draw_tri(&poiarr[0], iw, ih, &scrarr[0], (long)0x00000000);
-    std::cerr << "done with writing to arr";
+    std::cerr << "done with writing to arr!\n";
     for(int y=0;y<ih;y++){
         for(int x=0;x<iw;x++){
             long col = scrarr[x + y * iw];
@@ -27,6 +27,6 @@ int main() {
             std::cout << r << ' ' << g << ' ' << b << '\n';
         }
     }
-    std::cerr << "done writing to file";
+    std::cerr << "done writing to file!";
     return 0;
 }
