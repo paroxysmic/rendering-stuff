@@ -5,20 +5,16 @@
 #include "mlib.h"
 int iw = 400;
 int ih = 400;
-float randp(){
-    return (rand() % 4000)/10.0f;
-}
 int main() {
     long scrarr[iw * ih];
     std::cout << "P3\n" << iw << '\n' << ih << "\n" << 255 << '\n'; 
     for(int x=0;x<iw;x++){
         for(int y=0;y<ih;y++){
-            float poiarr[2] = {(float)x, (float)y};
-            setpix(poiarr, iw, ih, scrarr, 0xffffff);
+            setpix(vec2(x, y), iw, ih, scrarr, 0xffffff);
         }
     }
-    float poiarr[6] = {randp(), randp(), randp(), randp(), randp(), randp()};
-    draw_tri(&poiarr[0], iw, ih, &scrarr[0], (long)0x00000000);
+    vec2 parr[3] = {vec2(0.0, 0.0), vec2(50.0, 200.0), vec2(200.0, 50.0)};
+    draw_tri(parr, iw, ih, scrarr, (long)0x00000000);
     std::cerr << "done with writing to arr!\n";
     for(int y=0;y<ih;y++){
         for(int x=0;x<iw;x++){
