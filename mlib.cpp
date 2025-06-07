@@ -1,37 +1,43 @@
 #include "mlib.h"
 #include <cmath>
 #include <iostream>
-#define min(a, b) ((a > b) ? (b) : (a))
-#define max(a, b) ((a > b) ? (a) : (b))
+#include <algorithm>
+float sidecheck(vec2 test, vec2 orig, vec2 end){
+    return (test.x - orig.x) * (end.y - orig.y) - (test.y  - orig.y) * (end.x - orig.x);
+}
 void draw_tri(vec2 cpa[3], int bw, int bh, long *bptr, long color) {
-    float A, B, C, D, E, F;
-    A = cpa[0].x, B = cpa[0].y, C = cpa[1].x, D = cpa[1].y, E = cpa[2].x, F = cpa[2].y;
-    int minx = (int)min(min(A, C), E);
-    int miny = (int)min(min(B, D), F);
-    int maxx = (int)max(max(A, C), E);
-    int maxy = (int)max(max(B, D), F);
-    std::cerr << "A " << A << " B " << B << " C " << C << " D " << D << " E " << E << " F " << F << '\n';
-    std::cerr << "minx " << minx << "maxx " << maxx << "miny " << miny << "maxy " << maxy << '\n';
-    for (int y = minx; y < maxy; y++) {
-        for (int x = minx; x < maxx; x++) {
-            bool intriangle = true;
-            intriangle &= ((x-A)*(D-B)-(y-B)*(C-A) < 0);
-            intriangle &= ((x-C)*(B-D)-(y-D)*(A-C) < 0);
-            intriangle &= ((x-E)*(B-F)-(y-F)*(A-E) < 0);
-            if (intriangle) {
-                setpix(vec2(x, y), 400, 400, bptr, color);
-                std::cerr << "set pix " << x << ' ' << y << '\n';
+    if (sidecheck((cpa[0] + cpa[1] + cpa[2])/3, cpa[0], cpa[1]) > 0){
+        int minx = (int)std::min(std::min(cpa[0].x, cpa[1].x), cpa[2].x);
+        int miny = (int)std::min(std::min(cpa[0].y, cpa[1].y), cpa[2].y);
+        int maxx = (int)std::max(std::max(cpa[0].x, cpa[1].x), cpa[2].x);
+        int maxy = (int)std::max(std::max(cpa[0].y, cpa[1].y), cpa[2].y);
+        vec2 tvec;
+        int dpix = 0;
+        for (int y = miny; y < maxy; y++) {
+            for (int x = minx; x < maxx; x++) {
+                tvec = vec2(x, y);
+                if (sidecheck(tvec, cpa[0], cpa[1]) > 0){
+                    if (sidecheck(tvec, cpa[1], cpa[2]) > 0){
+                        if (sidecheck(tvec, cpa[2], cpa[0]) > 0){
+                            setpix(vec2(x, y), 400, 400, bptr, color);
+                            dpix++;
+                        }
+                    }
+                }
             }
         }
     }
-    std::cerr << "done drawing triangle!\n";
+    else{
+        vec2 fcpa[3] = {cpa[0], cpa[2], cpa[1]};
+        draw_tri(fcpa, bw, bh, bptr, color);
+    }
 }
 void draw_rect(vec2 cpa[2], int bw, int bh, long *bptr, long color) {
     int lx, hx, ly, hy;
-    lx = floor(min(cpa[0].x, cpa[1].x));
-    ly = floor(min(cpa[0].y, cpa[1].y));
-    hx = ceil(max(cpa[0].x, cpa[1].x));
-    hy = ceil(max(cpa[0].y, cpa[1].y));
+    lx = floor(std::min(cpa[0].x, cpa[1].x));
+    ly = floor(std::min(cpa[0].y, cpa[1].y));
+    hx = ceil(std::max(cpa[0].x, cpa[1].x));
+    hy = ceil(std::max(cpa[0].y, cpa[1].y));
     for (int i = lx; i < hx; i++) {
         for (int j = ly; j < hy; j++) {
             bptr[i + j * bw] = color;
