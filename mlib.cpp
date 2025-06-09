@@ -26,6 +26,7 @@ void draw_tri(vec2 cpa[3], int bw, int bh, long *bptr, long color) {
                 }
             }
         }
+        std::cerr << "hey ";
     }
     else{
         vec2 fcpa[3] = {cpa[0], cpa[2], cpa[1]};
