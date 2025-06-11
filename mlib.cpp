@@ -72,6 +72,9 @@ vec3 vec3::projonto(const vec3 &a) const {
     float scalar = this->dot(a) / a.dot(a);
     return a * scalar; 
 }
+//this function is deprecated, only use for explicit testing!
+//literally directly setting pixels makes it twice as fast lol
+//but then there's no bounds check so just be better ig lol
 void setpix(vec2 t, int bw, int bh, std::vector<long> *bptr, long val) {
     if(t.x >= 0 && t.x < bw && t.y >= 0 && t.y < bh) {
         (*bptr)[(int)t.x + (int)t.y * bw] = val;
@@ -116,7 +119,7 @@ void draw_tri(std::vector<vec2> cpa, int bw, int bh, std::vector<long> *bptr, lo
                 if (sidecheck(tvec, cpa[0], cpa[1]) > 0){
                     if (sidecheck(tvec, cpa[1], cpa[2]) > 0){
                         if (sidecheck(tvec, cpa[2], cpa[0]) > 0){
-                            setpix(vec2(x, y), 400, 400, bptr, color);
+                            (*bptr)[x + bw * y] = color;
                             dpix++;
                         }
                     }
@@ -143,7 +146,7 @@ void draw_circle(vec2 centre, float r, int bw, int bh, std::vector<long> *bptr, 
             float dx = x + 0.5 - centre.x;
             float dy = y + 0.5 - centre.y;
             if (dx * dx + dy * dy < r * r) {
-                setpix(vec2(x, y), bw, bh, bptr, color);
+                (*bptr)[x + y * bw] = color;
             }
         }
     }
