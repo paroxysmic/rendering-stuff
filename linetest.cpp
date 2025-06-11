@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <array>
+#include <string>
 #include <time.h>
 #include "mlib.h"
 const int iw = 400;
