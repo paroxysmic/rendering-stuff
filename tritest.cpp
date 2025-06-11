@@ -11,20 +11,22 @@ int main(int argc, char **argv) {
         std::ofstream out(argv[1], std::ios::binary);
         std::vector<long> scrarr;
         for(int i=0;i<iw*ih;i++){
-            scrarr.push_back(0x00ff00);
+            scrarr.push_back(0xffffff);
         }
         std::string header = "P6\n" + std::to_string(iw) + "\n" + std::to_string(ih) + "\n255\n";
         out.write(header.c_str(), header.size());
         clock_t t = clock();
-        float sx, sy, fx, fy;
-        long col = 0x000000;
-        for(int i=0;i<1e6;i++){
-            sx = rand() % 400;
-            sy = rand() % 400;
-            fx = rand() % 400;
-            fy = rand() % 400;
-            col = ((rand() & 0xff) << 16) + ((rand() & 0xff) << 8) + (rand() & 0xff);
-            draw_line(sx, sy, fx, fy,iw, ih, &scrarr, col);
+        for(int i=0;i<20;i++){
+            for(int j=0;j<20;j++){
+                for(int k=0;k<250;k++){
+                    vec2 p0 = vec2((i * 20) + (rand() % 20), (j * 20) + (rand() % 20));
+                    vec2 p1 = vec2((i * 20) + (rand() % 20), (j * 20) + (rand() % 20));
+                    vec2 p2 = vec2((i * 20) + (rand() % 20), (j * 20) + (rand() % 20));  
+                    long col = ((rand() & 0xff) << 16) + ((rand() & 0xff) << 8) + (rand() & 0xff);
+                    std::vector<vec2> parr = {p0, p1, p2};
+                    draw_tri(parr, 400, 400, &scrarr, col);
+                }
+            }
         }
         t = clock() - t;
         std::cerr << "done with writing to arr!\n";

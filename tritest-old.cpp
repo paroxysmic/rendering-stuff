@@ -6,14 +6,12 @@
 int iw = 400;
 int ih = 400;
 int main() {
-    long scrarr[iw * ih];
+    std::vector<long> scrarr;
     std::cout << "P3\n" << iw << '\n' << ih << "\n" << 255 << '\n';
-    for (int x = 0; x < iw; x++) {
-        for (int y = 0; y < ih; y++) {
-            setpix(vec2(x, y), iw, ih, scrarr, 0x000000);
-        }
+    for (int i = 0; i < iw * ih; i++) {
+        scrarr.push_back(0x000000);
     }
-    vec2 parr[3];
+    std::vector<vec2> parr = {vec2(0, 0), vec2(0, 0), vec2(0, 0)};
     long col;
     clock_t t = clock();
     for (int i = 0; i < 20; i++) {
@@ -23,7 +21,7 @@ int main() {
                 parr[1] = vec2(20 * i + (rand() % 20), 20 * j + (rand() % 20));
                 parr[2] = vec2(20 * i + (rand() % 20), 20 * j + (rand() % 20));
                 col = ((rand() & 0xff) << 16) + ((rand() & 0xff) << 8) + ((rand() & 0xff));
-                draw_tri(parr, iw, ih, scrarr, col);
+                draw_tri(parr, iw, ih, &scrarr, col);
             }
         }
     }

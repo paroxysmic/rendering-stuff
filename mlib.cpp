@@ -77,48 +77,57 @@ void setpix(vec2 t, int bw, int bh, std::vector<long> *bptr, long val) {
         (*bptr)[(int)t.x + (int)t.y * bw] = val;
     }
 }
-//TODO: implement draw_line
-void draw_line(vec2 orig, vec2 endp, int bw, int bh, std::vector<long> *bptr, long color) {
-
+void draw_line(float ox, float oy, float ex, float ey, int bw, int bh, std::vector<long> *bptr, long color) {
+    bool steep = (oy - ey) > (ox - ex);
+    if (steep) {
+        std::swap(ox, oy);
+        std::swap(ex, ey);
+    }   
+    if (ox > ex) {
+        std::swap(ox, ex);
+        std::swap(oy, ey);
+    }
+    float y = oy;
+    for(int x=ox;x<ex;x++){
+        if (steep) // if transposed, de−transpose
+            (*bptr)[y + bw * x] = color;
+        else {
+            (*bptr)[x + bw * y] = color;
+        }
+        y += (ey-oy) / static_cast<float>(ex-ox);
+    }
 }
-void draw_tri(vec2 cpa[3], int bw, int bh, std::vector<long> *bptr, long color) {
+void draw_tri(std::vector<vec2> cpa, int bw, int bh, std::vector<long> *bptr, long color) {
     //THE POINTS SHOULD BE COUNTERCLOCKWISE (in the normal x-y plane, not graphics plane) TO WORK
-    if (abs(areacalc(cpa, 3)) >= 1e-2){
-        if(sidecheck(cpa[2], cpa[0], cpa[1]) > 0){
-            int minx = (int)std::min(std::min(cpa[0].x, cpa[1].x), cpa[2].x);
-            int miny = (int)std::min(std::min(cpa[0].y, cpa[1].y), cpa[2].y);
-            int maxx = (int)std::max(std::max(cpa[0].x, cpa[1].x), cpa[2].x);
-            int maxy = (int)std::max(std::max(cpa[0].y, cpa[1].y), cpa[2].y);
-            vec2 tvec;
-            int dpix = 0;
-            for (int y = miny; y < maxy; y++) {
-                for (int x = minx; x < maxx; x++) {
-                    tvec = vec2(x, y);
-                    if (sidecheck(tvec, cpa[0], cpa[1]) > 0){
-                        if (sidecheck(tvec, cpa[1], cpa[2]) > 0){
-                            if (sidecheck(tvec, cpa[2], cpa[0]) > 0){
-                                setpix(vec2(x, y), 400, 400, bptr, color);
-                                dpix++;
-                            }
+    //this is because math loves conuterclockwise and time is of the devil
+    if (abs(areacalc(&cpa)) < 1e-2){
+        std::swap(cpa[0], cpa[1]);
+    }
+    if(sidecheck(cpa[2], cpa[0], cpa[1]) > 0){
+        int minx = (int)std::min(std::min(cpa[0].x, cpa[1].x), cpa[2].x);
+        int miny = (int)std::min(std::min(cpa[0].y, cpa[1].y), cpa[2].y);
+        int maxx = (int)std::max(std::max(cpa[0].x, cpa[1].x), cpa[2].x);
+        int maxy = (int)std::max(std::max(cpa[0].y, cpa[1].y), cpa[2].y);
+        vec2 tvec;
+        int dpix = 0;
+        for (int y = miny; y < maxy; y++) {
+            for (int x = minx; x < maxx; x++) {
+                tvec = vec2(x, y);
+                if (sidecheck(tvec, cpa[0], cpa[1]) > 0){
+                    if (sidecheck(tvec, cpa[1], cpa[2]) > 0){
+                        if (sidecheck(tvec, cpa[2], cpa[0]) > 0){
+                            setpix(vec2(x, y), 400, 400, bptr, color);
+                            dpix++;
                         }
                     }
                 }
             }
         }
-        else{
-            vec2 ncpa[3] = {cpa[0], cpa[2], cpa[1]};
-            draw_tri(ncpa, bw, bh, bptr, color);
-        }
     }
 }
-void draw_rect(vec2 cpa[2], int bw, int bh, std::vector<long> *bptr, long color) {
-    int lx, hx, ly, hy;
-    lx = floor(std::min(cpa[0].x, cpa[1].x));
-    ly = floor(std::min(cpa[0].y, cpa[1].y));
-    hx = ceil(std::max(cpa[0].x, cpa[1].x));
-    hy = ceil(std::max(cpa[0].y, cpa[1].y));
-    for (int i = lx; i < hx; i++) {
-        for (int j = ly; j < hy; j++) {
+void draw_rect(vec2 toplef, vec2 botrig, int bw, int bh, std::vector<long> *bptr, long color) {
+    for (int i = floor(toplef.x); i < botrig.x; i++) {
+        for (int j = floor(botrig.y); j < toplef.y; j++) {
             (*bptr)[i + j * bw] = color;
         }
     }
@@ -152,11 +161,11 @@ float sidecheck(vec2 test, vec2 orig, vec2 end) {
     //and negative if the point in on the right side
     return (test.y  - orig.y) * (end.x - orig.x) - (test.x - orig.x) * (end.y - orig.y);
 }
-float areacalc(vec2 cpa[], int pnum) {
+float areacalc(std::vector<vec2> *cpa) {
     float rt = 0;
-    for(int i=0;i<pnum;i++){
-        vec2 v0 = cpa[i];
-        vec2 v1 = cpa[(i + 1) % pnum];
+    for(int i=0;i<cpa->size();i++){
+        vec2 v0 = (*cpa)[i];
+        vec2 v1 = (*cpa)[(i + 1) % cpa->size()];
         rt += v0.x * v1.y;
         rt -= v0.y * v1.x;
     }
