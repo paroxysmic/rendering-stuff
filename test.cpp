@@ -2,12 +2,12 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-std::ofstream out ("otpt.txt", std::ios::binary);
 int main(){
-    char carr[95];
-    for(int i=32;i<127;i++){
-        carr[i-32] = i;
-    }
-    out.write(carr, 95);
+    vec2 v0 = vec2(2, 0);
+    vec2 v1 = vec2(1, 1);
+    vec2 v2 = v1.projonto(v0);
+    v2.desc();
+    v0.x = 0;
+    v0.desc();
     return 0;
 } 

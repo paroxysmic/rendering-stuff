@@ -11,12 +11,18 @@ int main(int argc, char **argv) {
         std::ofstream out(argv[1], std::ios::binary);
         std::vector<long> scrarr;
         for(int i=0;i<iw*ih;i++){
-            scrarr.push_back(0x00ff00);
+            scrarr.push_back(0xffffff);
         }
         std::string header = "P6\n" + std::to_string(iw) + "\n" + std::to_string(ih) + "\n255\n";
         out.write(header.c_str(), header.size());
         clock_t t = clock();
-        //do your things here
+        for(int i=0;i<100;i++){
+            float rx, ry, rr;
+            rx = (rand() % 4000) / 10;
+            ry = (rand() % 4000) / 10;
+            rr = (rand() % 400) / 10;
+            draw_circle(vec2(rx, ry), rr, iw, ih, &scrarr, 0xff0000);
+        }
         t = clock() - t;
         std::cerr << "done with writing to arr!\n";
         std::cerr << "took " << t << "ticks, or " << (float)t / 1000 << "seconds\n";

@@ -1,25 +1,27 @@
 #include "mlib.h"
 #include <cmath>
+#include <array>
+#include <vector>
 #include <iostream>
 #include <algorithm>
-vec2::vec2(float a, float b){
+vec2::vec2(float a, float b) {
     x = a;
     y = b;
     len = sqrt(a*a+b*b);
 }
-vec2 vec2::operator+(const vec2 &a){
+vec2 vec2::operator+(const vec2 &a) const {
     return vec2(x + a.x, y + a.y);
 }
-vec2 vec2::operator-(const vec2 &a){
+vec2 vec2::operator-(const vec2 &a) const {
     return vec2(x - a.x, y - a.y);
 }
-vec2 vec2::operator*(const float a){
+vec2 vec2::operator*(const float a) const {
     return vec2(x * a, y * a);
 }
-vec2 vec2::operator/(const float a){
+vec2 vec2::operator/(const float a) const {
     return vec2(x / a, y / a);
 }
-vec2 vec2::norm(){
+vec2 vec2::norm() const {
     if (len - 1 > -1e-8 && len - 1 < 1e-8){
         return *this;
     }
@@ -27,17 +29,59 @@ vec2 vec2::norm(){
         return *this / len;
     }
 }
-float vec2::dot(const vec2 &a){
+float vec2::dot(const vec2 &a) const {
     return (x * a.x) + (y * a.y);    
 }
-void setpix(vec2 target, int bw, int bh, long *board, long val) {
-    board[(int)floor(target.x) + (int)floor(target.y) * bw] = val;
+vec2 vec2::projonto(const vec2 &a) const {
+    float scalar = this->dot(a) / a.dot(a);
+    return a * scalar;
+}
+void vec2::desc() {
+    std::cout << x << ' ' << y << '\n';
+}
+vec3::vec3(float a, float b, float c) {
+    x = a;
+    y = b;
+    z = c;
+    len = sqrt(x * x + y * y + z * z);
+}
+vec3 vec3::operator+(const vec3 &a) const {
+    return vec3(x + a.x, y + a.y, z + a.z);
+}
+vec3 vec3::operator-(const vec3 &a) const {
+    return vec3(x - a.x, y - a.y, z - a.z);
+}
+vec3 vec3::operator*(const float a) const {
+    return vec3(x * a, y * a, z * a);
+}
+vec3 vec3::operator/(const float a) const {
+    return vec3(x / a, y / a, z / a);
+}
+vec3 vec3::norm() const {
+    if (abs(len - 1) > 1e-8) {
+        return *this / len;
+    }
+    else {
+        return *this;
+    }
+}
+float vec3::dot(const vec3 &a) const {
+    return x * a.x + y * a.y + z * a.z;
+}
+vec3 vec3::projonto(const vec3 &a) const {
+    float scalar = this->dot(a) / a.dot(a);
+    return a * scalar; 
+}
+void setpix(vec2 t, int bw, int bh, std::vector<long> *bptr, long val) {
+    if(t.x >= 0 && t.x < bw && t.y >= 0 && t.y < bh) {
+        (*bptr)[(int)t.x + (int)t.y * bw] = val;
+    }
 }
 //TODO: implement draw_line
-void draw_line(vec2 orig, vec2 endp, int bw, int bh, long *bptr, long color) {
+void draw_line(vec2 orig, vec2 endp, int bw, int bh, std::vector<long> *bptr, long color) {
 
 }
-void draw_tri(vec2 cpa[3], int bw, int bh, long *bptr, long color) {
+void draw_tri(vec2 cpa[3], int bw, int bh, std::vector<long> *bptr, long color) {
     //THE POINTS SHOULD BE COUNTERCLOCKWISE (in the normal x-y plane, not graphics plane) TO WORK
     if (abs(areacalc(cpa, 3)) >= 1e-2){
         if(sidecheck(cpa[2], cpa[0], cpa[1]) > 0){
@@ -67,7 +111,7 @@ void draw_tri(vec2 cpa[3], int bw, int bh, long *bptr, long color) {
         }
     }
 }
-void draw_rect(vec2 cpa[2], int bw, int bh, long *bptr, long color) {
+void draw_rect(vec2 cpa[2], int bw, int bh, std::vector<long> *bptr, long color) {
     int lx, hx, ly, hy;
     lx = floor(std::min(cpa[0].x, cpa[1].x));
     ly = floor(std::min(cpa[0].y, cpa[1].y));
@@ -75,23 +119,22 @@ void draw_rect(vec2 cpa[2], int bw, int bh, long *bptr, long color) {
     hy = ceil(std::max(cpa[0].y, cpa[1].y));
     for (int i = lx; i < hx; i++) {
         for (int j = ly; j < hy; j++) {
-            bptr[i + j * bw] = color;
+            (*bptr)[i + j * bw] = color;
         }
     }
 }
-//TODO: implement draw_circle
-void draw_circle(vec2 centre, float radius, int bw, int bh, long *bptr, long color) {
+void draw_circle(vec2 centre, float r, int bw, int bh, std::vector<long> *bptr, long color) {
     float lx, hx, ly, hy;
-    lx = std::max((float)ceil(centre.x - radius), 0.0f);
-    hx = std::min((float)ceil(centre.x + radius), (float)bw-1);
-    ly = std::max((float)ceil(centre.y - radius), 0.0f);
-    hy = std::min((float)ceil(centre.y + radius), (float)bh-1);
+    lx = std::max((int)ceil(centre.x - r), 0);
+    hx = std::min((int)ceil(centre.x + r), bw-1);
+    ly = std::max((int)ceil(centre.y - r), 0);
+    hy = std::min((int)ceil(centre.y + r), bh-1);
     for (int x = lx; x < hx; x++){
         for (int y = ly; y < hy; y++){
-            float tx = x + 0.5;
-            float ty = y + 0.5;
-            if ((tx-centre.x)*(tx-centre.x)+(ty-centre.y)*(ty-centre.y) < radius * radius) {
-                setpix(vec2(tx, ty), bw, bh, bptr, color);
+            float dx = x + 0.5 - centre.x;
+            float dy = y + 0.5 - centre.y;
+            if (dx * dx + dy * dy < r * r) {
+                setpix(vec2(x, y), bw, bh, bptr, color);
             }
         }
     }
