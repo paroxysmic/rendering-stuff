@@ -23,9 +23,10 @@ struct vec3 {
     vec3 norm() const;
     float dot(const vec3 &a) const;
     vec3 projonto(const vec3 &a) const;
+    void desc();
 };
 struct matr3 {
-    float a00, a01, a02, a10, a11, a12, a20, a21, a22;
+    float a00, a01, a02, a10, a11, a12, a20, a21, a22, det, trace;
     matr3(float a, float b, float c, float d, float e, float f, float g, float h, float i);
     matr3 operator+(const matr3 &a) const;
     matr3 operator-(const matr3 &a) const;
@@ -33,6 +34,9 @@ struct matr3 {
     matr3 operator/(const float a) const;
     vec3 transform(const vec3 &a) const;
     matr3 matmul(const matr3 &a) const;
+    matr3 transp() const;
+    matr3 inver() const;
+    void desc();
 };
 void setpix(vec2 t, int bw, int bh, std::vector<long> *board, long val);
 void draw_line(float ox, float oy, float ex, float ey, int bw, int bh, std::vector<long> *board, long color);
@@ -42,4 +46,5 @@ void draw_circle(vec2 centre, float r, int bw, int bh, std::vector<long> *board,
 long floattocol(float r, float g, float b);
 float sidecheck(vec2 test, vec2 orig, vec2 end);
 float areacalc(std::vector<vec2> *cpa);
+matr3 eul2mat(float xrot, float yrot, float zrot);
 #endif
