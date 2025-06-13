@@ -186,9 +186,6 @@ void draw_line(double ox, double oy, double ex, double ey, int bw, int bh, std::
 void draw_tri(std::vector<vec2> cpa, int bw, int bh, std::vector<long> *bptr, long color) {
     //THE POINTS SHOULD BE COUNTERCLOCKWISE (in the normal x-y plane, not graphics plane) TO WORK
     //this is because math loves conuterclockwise and time is of the devil
-    if (abs(areacalc(&cpa)) < 1e-2){
-        std::swap(cpa[0], cpa[1]);
-    }
     if(sidecheck(cpa[2], cpa[0], cpa[1]) > 0){
         int minx = std::min(cpa[0].x, std::min(cpa[1].x, cpa[2].x));
         int miny = std::min(cpa[0].y, std::min(cpa[1].y, cpa[2].y));
@@ -220,8 +217,10 @@ void draw_rect(vec2 toplef, vec2 botrig, int bw, int bh, std::vector<long> *bptr
     }
 }
 void draw_conv(std::vector<vec2> *cpa, int bw, int bh, std::vector<long> *bptr, long color) {
+    //cpa should be clockwise!!
     double minx, miny, maxx, maxy;
-    int pixc;
+    float pixc;
+    vec2 tvec;
     for(int i = 0; i < (*cpa).size(); i++) {
         if ((*cpa)[i].x > maxx) {
             maxx = (*cpa)[i].x;
@@ -238,11 +237,21 @@ void draw_conv(std::vector<vec2> *cpa, int bw, int bh, std::vector<long> *bptr, 
     }
     for(int x = minx; x < maxx; x++) {
         for(int y = miny; y < maxy; y++) {
-            pixc = 0;
+            pixc = 0.0f;
             for(int k = 0; k < 4; k++) {
-                //]
-
+                bool inpolyg = true;
+                tvec = vec2(x + (float)((k & 0x02) + 1) / 4 , y + (float)((k & 0x01) * 2 + 1) / 4);
+                for(int i = 0; i < cpa->size(); i++) {
+                    if (sidecheck(tvec, (*cpa)[i], (*cpa)[(i + 1) % cpa->size()]) < 0) {
+                        inpolyg = false;
+                        break;
+                    }
+                }
+                if(inpolyg) {
+                    pixc++;
+                }
             }
+            (*bptr)[x + y * bw] = colorlerp((*bptr)[x + y * bw], color, pixc/4);
         }
     }
 }

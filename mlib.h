@@ -59,7 +59,7 @@ void setpix(vec2 t, int bw, int bh, std::vector<long> *board, long val);
 void draw_line(double ox, double oy, double ex, double ey, int bw, int bh, std::vector<long> *board, long color);
 void draw_tri(std::vector<vec2> cpa, int bw, int bh, std::vector<long> *bptr, long color);
 void draw_rect(vec2 toplef, vec2 botrig, int bw, int bh, std::vector<long> *bptr, long color);
-void draw_conv(std::vector<vec2> cpa, int bw, int bh, std::vector<long> *bptr, long color);
+void draw_conv(std::vector<vec2> *cpa, int bw, int bh, std::vector<long> *bptr, long color);
 void draw_circle(vec2 centre, double r, int bw, int bh, std::vector<long> *bptr, long color);
 long doubletocol(double r, double g, double b);
 double sidecheck(vec2 test, vec2 orig, vec2 end);

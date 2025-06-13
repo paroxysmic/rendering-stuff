@@ -43,11 +43,9 @@ int main(int argc, char **argv) {
                 vec2 v1 = donarr[su + v * urange].camproj() + vec2(iw/2, ih/2);
                 vec2 v2 = donarr[su + sv * urange].camproj() + vec2(iw/2, ih/2);
                 vec2 v3 = donarr[u + sv * urange].camproj() + vec2(iw/2, ih/2);
-                std::vector<vec2> utri = {v0, v1, v2};
-                std::vector<vec2> btri = {v0, v2, v3};
+                std::vector<vec2> parr = {v0, v1, v2, v3};
                 long col = ((int)(floor(255*u/urange)) << 16) + ((int)(floor(255*v/vrange)) << 8) + 0xff;
-                draw_tri(utri, iw, ih, &scrarr, col);
-                draw_tri(btri, iw, ih, &scrarr, col);
+                draw_conv(&parr, iw, ih, &scrarr, col);
                 std::cout << "finsihed tri " << u << ' ' << v << '\n';                
             }
         }

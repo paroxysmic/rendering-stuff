@@ -17,7 +17,8 @@ int main(int argc, char **argv) {
         std::string header = "P6\n" + std::to_string(iw) + "\n" + std::to_string(ih) + "\n255\n";
         out.write(header.c_str(), header.size());
         clock_t t = clock();
-        std::vector<vec2> car = {vec2(10, 10), vec2(32, 40), vec2(10, 40)};
+        std::vector<vec2> car = {vec2(10, 10), vec2(32, 24), vec2(21, 40)};
+        std::cout << sidecheck(car[2], car[0], car[1]);
         draw_tri(car, iw, ih, &scrarr, 0xffffff);
         t = clock() - t;
         std::cerr << "done with writing to arr!\n";
