@@ -240,7 +240,8 @@ void draw_conv(std::vector<vec2> *cpa, int bw, int bh, std::vector<long> *bptr, 
         for(int y = miny; y < maxy; y++) {
             pixc = 0;
             for(int k = 0; k < 4; k++) {
-                
+                //]
+
             }
         }
     }
