@@ -5,8 +5,8 @@
 #include <string>
 #include <time.h>
 #include "mlib.h"
-const int iw = 64;
-const int ih = 64;
+const int iw = 400;
+const int ih = 400;
 int main(int argc, char **argv) {
     if(argc == 2){
         std::ofstream out(argv[1], std::ios::binary);
@@ -17,16 +17,7 @@ int main(int argc, char **argv) {
         std::string header = "P6\n" + std::to_string(iw) + "\n" + std::to_string(ih) + "\n255\n";
         out.write(header.c_str(), header.size());
         clock_t t = clock();
-        float sx, sy, fx, fy;
-        long col = 0x000000;
-        for(int i=0;i<1.6e7;i++){
-            sx = rand() % 64;
-            sy = rand() % 64;
-            fx = rand() % 64;
-            fy = rand() % 64;
-            col = ((rand() & 0xff) << 16) + ((rand() & 0xff) << 8) + (rand() & 0xff);
-            draw_line(sx, sy, fx, fy,iw, ih, &scrarr, col);
-        }
+        //do your things here
         t = clock() - t;
         std::cerr << "done with writing to arr!\n";
         std::cerr << "took " << t << "ticks, or " << (float)t / 1000 << "seconds\n";

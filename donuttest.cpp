@@ -9,8 +9,8 @@
 #define _USE_MATH_DEFINES
 const int iw = 400;
 const int ih = 400;
-const int urange = 20;
-const int vrange = 20;
+const int urange = 10;
+const int vrange = 10;
 int main(int argc, char **argv) {
     if(argc == 2){
         std::ofstream out(argv[1], std::ios::binary);
@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
             scrarr.push_back(0xffffff);
         }
         std::vector<vec3> donarr;
-        matr3 combrot = eul2mat(0.7, 3.4, 2.1);
+        matr3 combrot = eul2mat(0.7, 2.8, 2.1);
         for(int uind=0;uind<urange;uind++){
             for(int vind=0;vind<vrange;vind++){
                 //[sin(v)(sin(u)+2), cos(v)(sin(u)+2), cos(u)]
@@ -39,10 +39,10 @@ int main(int argc, char **argv) {
                 su = (u + 1) % urange;
                 sv = (v + 1) % vrange;
                 //0.64 * y / (z + 3) is the projection formula
-                vec2 v0 = donarr[u + v * urange].camproj() + vec2(iw/2, ih/2);
-                vec2 v1 = donarr[su + v * urange].camproj() + vec2(iw/2, ih/2);
-                vec2 v2 = donarr[su + sv * urange].camproj() + vec2(iw/2, ih/2);
-                vec2 v3 = donarr[u + sv * urange].camproj() + vec2(iw/2, ih/2);
+                vec2 v0 = donarr[u + v * urange].camproj() * 40 + vec2(iw/2, ih/2);
+                vec2 v1 = donarr[su + v * urange].camproj() * 40 + vec2(iw/2, ih/2);
+                vec2 v2 = donarr[su + sv * urange].camproj() * 40 + vec2(iw/2, ih/2);
+                vec2 v3 = donarr[u + sv * urange].camproj() * 40 + vec2(iw/2, ih/2);
                 std::vector<vec2> parr = {v0, v1, v2, v3};
                 long col = ((int)(floor(255*u/urange)) << 16) + ((int)(floor(255*v/vrange)) << 8) + 0xff;
                 draw_conv(&parr, iw, ih, &scrarr, col);
