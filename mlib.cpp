@@ -194,58 +194,20 @@ void draw_line(vec2 orig, vec2 endp, int bw, int bh, std::vector<long> &image, l
         } 
     } 
 } 
-void draw_tri(std::vector<vec2> cpa, int bw, int bh, std::vector<long> &image, long color) {
+void draw_tri(std::vector<vec2> cpa, int bw, int bh, std::vector<long> *image, long color) {
     //THE POINTS SHOULD BE COUNTERCLOCKWISE (in the normal x-y plane, not graphics plane) TO WORK
     //this is because math loves counterclockwise and time is of the devil
     if(sidecheck(cpa[2], cpa[0], cpa[1]) > 0){
-        int minx = std::min(std::min(0.0f, cpa[0].x), std::min(cpa[1].x, cpa[2].x));
-        int miny = std::min(std::min(0.0f, cpa[0].y), std::min(cpa[1].y, cpa[2].y));
-        int maxx = std::max(std::max((float)bw, cpa[0].x), std::max(cpa[1].x, cpa[2].x));
-        int maxy = std::max(std::max((float)bh, cpa[0].y), std::max(cpa[1].y, cpa[2].y));
+        int minx = std::min({0.0f, cpa[0].x, cpa[1].x, cpa[2].x});
+        int miny = std::min({0.0f, cpa[0].x, cpa[1].y, cpa[2].y});
+        int maxx = std::max({(float)bw, cpa[0].x, cpa[1].x, cpa[2].x});
+        int maxy = std::max({(float)bh, cpa[0].y, cpa[1].y, cpa[2].y});
         vec2 tvec;
         for (float y = miny; y < maxy; y++) {
             for (float x = minx; x < maxx; x++) {
-                    tvec = vec2(x + 0.5f, y + 0.5f);
-                    if (sidecheck(tvec, cpa[0], cpa[1]) >= 0 && sidecheck(tvec, cpa[1], cpa[2]) >= 0 && sidecheck(tvec, cpa[2], cpa[0]) >= 0){
-                        image[x + y * bw] = color;   
-                    }
-            }
-        }
-    }
-}
-void draw_multi_tri(std::vector<vec2> cpa, int bw, int bh, std::vector<long> *bptr, long color) {
-    std::vector<float> bba;
-    if (cpa.size() % 3 != 0) {
-        throw std::invalid_argument("triarray is not packed correctly!");
-    }
-    int trinum = bba.size() / 3;
-    float gxmin = cpa.at(0).x;
-    float gxmax = cpa.at(0).x;
-    float gymin = cpa.at(0).y;
-    float gymax = cpa.at(0).y;
-    for (int i=0;i<cpa.size();i+=3){
-        float xmin = std::min(cpa.at(i).x, std::min(cpa.at(i + 1).x, cpa.at(i + 2).x));
-        float xmax = std::max(cpa.at(i).x, std::max(cpa.at(i + 1).x, cpa.at(i + 2).x));
-        float ymin = std::min(cpa.at(i).y, std::min(cpa.at(i + 1).y, cpa.at(i + 2).y));
-        float ymax = std::max(cpa.at(i).y, std::max(cpa.at(i + 1).y, cpa.at(i + 2).y));
-        bba.push_back(xmin);
-        bba.push_back(xmax);
-        bba.push_back(ymin);
-        bba.push_back(ymax);        
-        gxmin = std::min(gxmin, xmin);
-        gxmax = std::max(gxmax, xmax);
-        gymin = std::min(gymin, ymin);
-        gymax = std::max(gymax, ymax);
-    }
-    for(int i=floor(gymin); i < ceil(gymax); i++){
-        for(int j=floor(gxmin); j < ceil(gxmax); j++) {
-            long col = 0;
-            int hitnum = 0;
-            for(int k=0; k < trinum; k++) {
-                //we're iterating over all our precomputed bounding boxes for each triangle, and checking for a hit
-                //if we do get a hit, we'll add that to our current pixel's color, while normalizing
-                for(int l=0; l < 16; l++) {
-                    //l is for multisampling lol
+                tvec = vec2(x + 0.5f, y + 0.5f);
+                if (sidecheck(tvec, cpa[0], cpa[1]) >= 0 && sidecheck(tvec, cpa[1], cpa[2]) >= 0 && sidecheck(tvec, cpa[2], cpa[0]) >= 0){
+                    (*image)[x + y * bw] = color;   
                 }
             }
         }

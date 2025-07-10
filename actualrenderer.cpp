@@ -15,7 +15,7 @@ const int ih = 400;
 const int frames = 60;
 int main(int argc, char **argv) {
     if(argc == 2){
-        std::ifstream pumpkin("pumpkin.obj");
+        std::ifstream pumpkin("tinker.obj");
         std::vector<vec3> vposarr;
         std::vector<int> triindarr;
         std::string line;
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
                 std::vector<vec2> parr = {(rotmat.transform(vposarr.at(triindarr.at(i) - 1))).camproj(), 
                                 (rotmat.transform(vposarr.at(triindarr.at(i + 1) - 1))).camproj(), 
                                 (rotmat.transform(vposarr.at(triindarr.at(i + 2) - 1))).camproj()};
-                draw_tri(parr, iw, ih, scrarr, 0x010101 * (255 * i / triindarr.size()));
+                draw_tri(parr, iw, ih, &scrarr, 0x010101 * (255 * i / triindarr.size()));
             }
             //stop doing stuff!
             std::vector<char> carr;
