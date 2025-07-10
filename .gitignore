@@ -1,2 +1,5 @@
 *.ppm
 *.exe
+*.gif
+*.obj
+*.py

@@ -1,9 +1,10 @@
 #include "mlib.h"
-#include <cmath>
 #include <array>
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#define _USE_MATH_DEFINES
+#include <math.h>
 vec2::vec2(float a, float b) {
     x = a;
     y = b;
@@ -29,6 +30,10 @@ vec2 vec2::norm() const {
         return *this / len;
     }
 }
+vec2 vec2::rot(const float a) const {
+    double rang = a * M_PI / 180;
+    return vec2(this->x * cos(rang) + this->y * sin(rang), -this->x * sin(rang) + this->y * cos(rang));
+}
 float vec2::dot(const vec2 &a) const {
     return (x * a.x) + (y * a.y);    
 }
@@ -37,8 +42,7 @@ vec2 vec2::projonto(const vec2 &a) const {
     return a * scalar;
 }
 void vec2::desc() {
-    std::cout << '|' << x << "|\n";
-    std::cout << '|' << y << "|\n";
+    std::cout << '|' << x << ' ' << y << "|\n";
 }
 vec3::vec3(float a, float b, float c) {
     x = a;
@@ -74,12 +78,10 @@ vec3 vec3::projonto(const vec3 &a) const {
     return a * scalar; 
 }
 vec2 vec3::camproj() const {
-    return vec2(x, y);
+     return vec2(200 + (450 * this->x) / (this->z + 3), 200 + (450 * this->y) / (this->z + 3));
 }
 void vec3::desc() {
-    std::cout << '|' << x << "|\n";
-    std::cout << '|' << y << "|\n";
-    std::cout << '|' << z << "|\n";
+    std::cout << '|' << x << ' ' << y << ' ' << z << "|\n";
 }
 matr3::matr3(float a, float b, float c, float d, float e, float f, float g, float h, float i) {
     a00 = a;
@@ -163,48 +165,50 @@ void setpix(vec2 t, int bw, int bh, std::vector<long> *bptr, long val) {
         (*bptr)[(int)t.x + (int)t.y * bw] = val;
     }
 }
-void draw_line(float ox, float oy, float ex, float ey, int bw, int bh, std::vector<long> *bptr, long color) {
-    bool steep = (oy - ey) > (ox - ex);
-    if (steep) {
-        std::swap(ox, oy);
-        std::swap(ex, ey);
-    }   
-    if (ox > ex) {
-        std::swap(ox, ex);
-        std::swap(oy, ey);
-    }
-    float y = oy;
-    for(int x=ox;x<ex;x++){
-        if (steep) // if transposed, de−transpose
-            (*bptr)[y + bw * x] = color;
-        else {
-            (*bptr)[x + bw * y] = color;
-        }
-        y += (ey-oy) / static_cast<float>(ex-ox);
-    }
-}
-void draw_tri(std::vector<vec2> cpa, int bw, int bh, std::vector<long> *bptr, long color) {
+void draw_line(vec2 orig, vec2 endp, int bw, int bh, std::vector<long> &image, long color) { 
+    bool steep = false; 
+    if (std::abs(orig.x-endp.x)<std::abs(orig.y-endp.y)) { 
+        std::swap(orig.x, orig.y); 
+        std::swap(endp.x, endp.y); 
+        steep = true; 
+    } 
+    if (orig.x>endp.x) { 
+        std::swap(orig.x, endp.x); 
+        std::swap(orig.y, endp.y); 
+    } 
+    int dx = endp.x-orig.x; 
+    int dy = endp.y-orig.y; 
+    int derror2 = std::abs(dy)*2; 
+    int error2 = 0; 
+    int y = orig.y; 
+    for (int x=orig.x; x<=endp.x; x++) { 
+        if (steep) { 
+            image.at(y + x * bw) = color; 
+        } else { 
+            image.at(x + y * bw) = color; 
+        } 
+        error2 += derror2; 
+        if (error2 > dx) { 
+            y += (endp.y>orig.y?1:-1); 
+            error2 -= dx*2; 
+        } 
+    } 
+} 
+void draw_tri(std::vector<vec2> cpa, int bw, int bh, std::vector<long> &image, long color) {
     //THE POINTS SHOULD BE COUNTERCLOCKWISE (in the normal x-y plane, not graphics plane) TO WORK
     //this is because math loves counterclockwise and time is of the devil
     if(sidecheck(cpa[2], cpa[0], cpa[1]) > 0){
-        int minx = std::min(cpa[0].x, std::min(cpa[1].x, cpa[2].x));
-        int miny = std::min(cpa[0].y, std::min(cpa[1].y, cpa[2].y));
-        int maxx = std::max(cpa[0].x, std::max(cpa[1].x, cpa[2].x));
-        int maxy = std::max(cpa[0].y, std::max(cpa[1].y, cpa[2].y));
+        int minx = std::min(std::min(0.0f, cpa[0].x), std::min(cpa[1].x, cpa[2].x));
+        int miny = std::min(std::min(0.0f, cpa[0].y), std::min(cpa[1].y, cpa[2].y));
+        int maxx = std::max(std::max((float)bw, cpa[0].x), std::max(cpa[1].x, cpa[2].x));
+        int maxy = std::max(std::max((float)bh, cpa[0].y), std::max(cpa[1].y, cpa[2].y));
         vec2 tvec;
-        float pixc;
-        for (int y = miny; y < maxy; y++) {
-            for (int x = minx; x < maxx; x++) {
-                    pixc = 0.0f;
-                    for (int k = 0; k < 4; k++){
-                        tvec = vec2(x + (float)((k & 0x01) + 1) / 4, y + (float)((k & 0x02) + 1) / 4);
-                        if (sidecheck(tvec, cpa[0], cpa[1]) >= 0 && sidecheck(tvec, cpa[1], cpa[2]) >= 0 && sidecheck(tvec, cpa[2], cpa[0]) >= 0){
-                            pixc++;
-                        }
+        for (float y = miny; y < maxy; y++) {
+            for (float x = minx; x < maxx; x++) {
+                    tvec = vec2(x + 0.5f, y + 0.5f);
+                    if (sidecheck(tvec, cpa[0], cpa[1]) >= 0 && sidecheck(tvec, cpa[1], cpa[2]) >= 0 && sidecheck(tvec, cpa[2], cpa[0]) >= 0){
+                        image[x + y * bw] = color;   
                     }
-                if (pixc != 0){
-                    (*bptr)[x + y * bw] = colorlerp((*bptr)[x + y * bw], color, pixc/4);
-                }
             }
         }
     }
@@ -278,7 +282,7 @@ void draw_conv(std::vector<vec2> *cpa, int bw, int bh, std::vector<long> *bptr, 
             pixc = 0.0f;
             for(int k = 0; k < 9; k++) {
                 bool inpolyg = true;
-                tvec = vec2(x + ((k % 3) + 1) / (float)4 , y + ((k / 3) * 2 + 1) / (float)4);
+                tvec = vec2(x + ((k % 3) + 1) / (float)9 , y + ((k / 3) * 2 + 1) / (float)9);
                 for(int i = 0; i < cpa->size(); i++) {
                     if (sidecheck(tvec, (*cpa)[i], (*cpa)[(i + 1) % cpa->size()]) < 0) {
                         inpolyg = false;
@@ -289,7 +293,7 @@ void draw_conv(std::vector<vec2> *cpa, int bw, int bh, std::vector<long> *bptr, 
                     pixc++;
                 }
             }
-            (*bptr)[x + y * bw] = colorlerp((*bptr)[x + y * bw], color, pixc/4);
+            (*bptr)[x + y * bw] = colorlerp((*bptr)[x + y * bw], color, pixc/9);
         }
     }
 }
@@ -344,4 +348,43 @@ matr3 eul2mat(float xrot, float yrot, float zrot) {
     matr3 yrotmat = matr3(cy, 0, sy, 0, 1, 0, -sy, 0, cy);
     matr3 zrotmat = matr3(cz, -sz, 0, sz, cz, 0, 0, 0, 1);
     return xrotmat.matmul(yrotmat.matmul(zrotmat));
+}
+std::vector<double> msort(std::vector<double> arr){
+    if (arr.size() == 1) {
+        return arr;
+    }
+    else if (arr.size() == 2) {
+        return std::vector<double> {arr[0], arr[1]};
+    }
+    else {
+        int split = arr.size() / 2;
+        std::vector<double> lhs;
+        std::vector<double> rhs;
+        for(int i=0;i<split;i++) {
+            lhs.push_back(arr.at(i));
+        }
+        for(int i=split;i<arr.size();i++) {
+            rhs.push_back(arr.at(i));
+        }
+        lhs = msort(lhs);
+        rhs = msort(rhs);
+        std::vector<double> sarr;
+        int lp = 0;
+        int rp = 0;
+        while(lp < lhs.size() && rp < rhs.size()) {
+            if (lhs.at(lp) > rhs.at(rp)) {
+                sarr.push_back(rhs.at(rp++));
+            }
+            else {
+                sarr.push_back(lhs.at(lp++));
+            }
+        }   
+        while(lp < lhs.size()) { sarr.push_back(lhs.at(lp++)); }
+        while(rp < rhs.size()) { sarr.push_back(rhs.at(rp++)); }
+        return sarr;
+    }
+}   
+void draw_conv_zbuf(std::vector<vec3> *cpa, vec3 campos, int bw, int bh, std::vector<long> *bptr, std::vector<float> zbuf, long color) {
+    //(Px-Cx)/2(Pz-Cz)
+    
 }

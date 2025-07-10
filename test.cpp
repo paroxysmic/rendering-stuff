@@ -2,8 +2,10 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sstream>
 #include <vector>
+
 int main(){
-    std::cout << 16 * (1 - 0.2f);
+
     return 0;
 } 
