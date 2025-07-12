@@ -4,7 +4,8 @@
 #include <array>
 #include <string>
 #include <time.h>
-#include "mlib.h"
+#include "matrlib.h"
+#include "drawlib.h"
 const int iw = 400;
 const int ih = 400;
 int main(int argc, char **argv) {

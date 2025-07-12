@@ -8,7 +8,8 @@
 #include <time.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "mlib.h"
+#include "drawlib.h"
+
 const int iw = 400;
 const int ih = 400;
 const int frames = 120;

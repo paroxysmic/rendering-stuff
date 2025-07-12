@@ -9,7 +9,8 @@
 #include <Windows.h>
 #include <time.h>
 #include <math.h>
-#include "mlib.h"
+#include "matrlib.h"
+#include "drawlib.h"
 const int iw = 400;
 const int ih = 400;
 const int frames = 60;
@@ -85,7 +86,7 @@ int main(int argc, char **argv) {
                 std::vector<vec2> parr = {(rotmat.transform(vposarr.at(triindarr.at(i) - 1))).camproj(), 
                                 (rotmat.transform(vposarr.at(triindarr.at(i + 1) - 1))).camproj(), 
                                 (rotmat.transform(vposarr.at(triindarr.at(i + 2) - 1))).camproj()};
-                draw_tri(parr, iw, ih, &scrarr, 0x010101 * (255 * i / triindarr.size()));
+                draw_tri(parr, iw, ih, &scrarr, i * 255.0f / triindarr.size());
             }
             //stop doing stuff!
             std::vector<char> carr;

@@ -1,6 +1,5 @@
-#ifndef MLIB_H_
-#define MLIB_H_
-#include <vector>
+#ifndef MATRLIB_H
+#define MATRLIB_H
 struct vec2 {
     float x, y, len;
     vec2(const float a=0, const float b=0);
@@ -22,6 +21,7 @@ struct vec3 {
     vec3 operator*(const float a) const;
     vec3 operator/(const float a) const;
     vec3 norm() const;
+    vec3 cross(const vec3 &a) const;
     float dot(const vec3 &a) const;
     vec3 projonto(const vec3 &a) const;
     vec2 camproj() const;
@@ -40,17 +40,4 @@ struct matr3 {
     matr3 inver() const;
     void desc();
 };
-long colorlerp(long a, long b, float t);
-void setpix(vec2 t, int bw, int bh, std::vector<long> *board, long val);
-void draw_line(vec2 orig, vec2 endp, int bw, int bh, std::vector<long> &image, long color);
-void draw_tri(std::vector<vec2> cpa, int bw, int bh, std::vector<long> *bptr, long color);
-void draw_rect(vec2 toplef, vec2 botrig, int bw, int bh, std::vector<long> *bptr, long color);
-void draw_conv(std::vector<vec2> *cpa, int bw, int bh, std::vector<long> *bptr, long color);
-void draw_circle(vec2 centre, float r, int bw, int bh, std::vector<long> *bptr, long color);
-long floattocol(float r, float g, float b);
-float sidecheck(vec2 test, vec2 orig, vec2 end);
-float areacalc(std::vector<vec2> *cpa);
-matr3 eul2mat(float xrot, float yrot, float zrot);
-std::vector<double> msort(std::vector<double> arr);
-void draw_conv_zbuf(std::vector<vec3> *cpa, vec3 campos, int bw, int bh, std::vector<long> *bptr, std::vector<float> zbuf, long color);
 #endif
