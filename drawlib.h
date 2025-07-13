@@ -14,6 +14,6 @@ float sidecheck(vec2 test, vec2 orig, vec2 end);
 float areacalc(std::vector<vec2> *cpa);
 matr3 eul2mat(float xrot, float yrot, float zrot);
 std::vector<double> msort(std::vector<double> arr);
-void draw_conv_zbuf(std::vector<vec3> *cpa, vec3 campos, int bw, int bh, std::vector<long> *bptr, std::vector<float> zbuf, long color);
+void draw_tri_zbuf(std::vector<vec3> cpa, int iw, int ih, std::vector<long> &image, std::vector<float> &zbuf, long color);
 vec3 barycoords(vec2 A, vec2 B, vec2 C, vec2 P);
 #endif

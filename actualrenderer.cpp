@@ -70,23 +70,22 @@ int main(int argc, char **argv) {
         for (int i=0;i<vposarr.size();i++) {
             vposarr.at(i) = vposarr.at(i) * 2 / maxdim;
         }
-        for(int frame=0;frame<frames;frame++) {
+        for(int frame=0;frame<frames;frame++) { 
+            std::vector<float> zbuf(iw * ih, INFINITY);
             std::string num = std::to_string(frame);
             num.insert(num.begin(), 4 - num.length(), '0');
             std::ofstream out(argv[1] + num + ".ppm", std::ios::binary);
-            std::vector<long> scrarr;
-            for(int j=0;j<iw*ih;j++){
-                scrarr.push_back(0xffffff);
-            }
+            std::vector<long> scrarr(iw * ih, 0xffffff);
             std::string header = "P6\n" + std::to_string(iw) + "\n" + std::to_string(ih) + "\n255\n";
             out.write(header.c_str(), header.size());
             //do stuff here!
             matr3 rotmat = eul2mat(0, 2 * M_PI * frame / frames, 0);
             for(int i=0;i<triindarr.size();i+=3) {
-                std::vector<vec2> parr = {(rotmat.transform(vposarr.at(triindarr.at(i) - 1))).camproj(), 
-                                (rotmat.transform(vposarr.at(triindarr.at(i + 1) - 1))).camproj(), 
-                                (rotmat.transform(vposarr.at(triindarr.at(i + 2) - 1))).camproj()};
-                draw_tri(parr, iw, ih, &scrarr, i * 255.0f / triindarr.size());
+                std::vector<vec3> parr = {rotmat.transform(vposarr.at(triindarr.at(i))), 
+                                          rotmat.transform(vposarr.at(triindarr.at(i + 1))), 
+                                          rotmat.transform(vposarr.at(triindarr.at(i + 2)))};
+                long col = 255.0f * i / triindarr.size();
+                draw_tri_zbuf(parr, iw, ih, scrarr, zbuf, col);
             }
             //stop doing stuff!
             std::vector<char> carr;

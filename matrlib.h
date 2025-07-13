@@ -15,6 +15,7 @@ struct vec2 {
 };
 struct vec3 {
     float x, y, z, len;
+    vec2 xy;
     vec3(float a=0, float b=0, float c=0);
     vec3 operator+(const vec3 &a) const;
     vec3 operator-(const vec3 &a) const;

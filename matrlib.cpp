@@ -48,6 +48,7 @@ vec3::vec3(float a, float b, float c) {
     y = b;
     z = c;
     len = sqrt(x * x + y * y + z * z);
+    xy = vec2(x, y);
 }
 vec3 vec3::operator+(const vec3 &a) const {
     return vec3(x + a.x, y + a.y, z + a.z);
