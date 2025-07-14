@@ -162,7 +162,7 @@ matr3 eul2mat(float xrot, float yrot, float zrot) {
     matr3 zrotmat = matr3(cz, -sz, 0, sz, cz, 0, 0, 0, 1);
     return xrotmat.matmul(yrotmat.matmul(zrotmat));
 }
-std::vector<double> msort(std::vector<double> arr){
+std::vector<double> msort(std::vector<double> arr) {
     if (arr.size() == 1) {
         return arr;
     }
@@ -235,4 +235,34 @@ vec3 barycoords(vec2 A, vec2 B, vec2 C, vec2 P) {
         return vec3(-1, 1, 1);
     }
     return vec3(v, w, u);
+}
+void norm_vec_arr(std::vector<vec3> &varr) {
+    vec3 minvec, maxvec, avgvec;
+    int vs = varr.size();
+    minvec.x = 1000;
+    minvec.y = 1000;
+    minvec.z = 1000;
+    maxvec.x = -1000;
+    maxvec.y = -1000;
+    maxvec.z = -1000;
+    for (int i=0;i<vs;i++) {
+        avgvec = avgvec + varr.at(i);
+    }
+    avgvec = avgvec / (float)vs;
+    for (int i=0;i<vs;i++) {
+        varr.at(i) = varr.at(i) - avgvec;
+    }
+    for (int i=0;i<vs;i++) {
+        vec3 tvec = varr.at(i);
+        minvec.x = std::min(minvec.x, tvec.x);
+        minvec.y = std::min(minvec.y, tvec.y);
+        minvec.z = std::min(minvec.z, tvec.z);
+        maxvec.x = std::max(maxvec.x, tvec.x);
+        maxvec.y = std::max(maxvec.y, tvec.y);
+        maxvec.z = std::max(maxvec.z, tvec.z);
+    }
+    float maxdim = std::max(abs(minvec.x - maxvec.x), std::max(abs(minvec.y - maxvec.y), abs(minvec.z - maxvec.z)));
+    for (int i=0;i<vs;i++) {
+        varr.at(i) = varr.at(i) * 2 / maxdim;
+    }
 }

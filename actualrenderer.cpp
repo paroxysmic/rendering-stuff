@@ -15,12 +15,12 @@ const int iw = 400;
 const int ih = 400;
 const int frames = 60;
 int main(int argc, char **argv) {
-    if(argc == 2){
-        std::ifstream pumpkin("tinker.obj");
+    if(argc == 4){
+        std::ifstream obj(argv[2]);
         std::vector<vec3> vposarr;
         std::vector<int> triindarr;
         std::string line;
-        while(std::getline(pumpkin, line)) {
+        while(std::getline(obj, line)) {
             if(line[0] == 'v') {
                 std::stringstream ss (line.substr(2));
                 float pos[3];
@@ -42,34 +42,7 @@ int main(int argc, char **argv) {
                 }
             }
         }
-        vec3 minvec, maxvec, avgvec;
-        minvec.x = 1000;
-        minvec.y = 1000;
-        minvec.z = 1000;
-        maxvec.x = -1000;
-        maxvec.y = -1000;
-        maxvec.z = -1000;
-        for (int i=0;i<vposarr.size();i++) {
-            avgvec = avgvec + vposarr.at(i);
-        }
-        avgvec = avgvec / (float)vposarr.size();
-        for (int i=0;i<vposarr.size();i++) {
-            vposarr.at(i) = vposarr.at(i) - avgvec;
-        }
-        for (int i=0;i<vposarr.size();i++) {
-            vec3 tvec = vposarr.at(i);
-            minvec.x = std::min(minvec.x, tvec.x);
-            minvec.y = std::min(minvec.y, tvec.y);
-            minvec.z = std::min(minvec.z, tvec.z);
-            maxvec.x = std::max(maxvec.x, tvec.x);
-            maxvec.y = std::max(maxvec.y, tvec.y);
-            maxvec.z = std::max(maxvec.z, tvec.z);
-        }
-        avgvec = avgvec / (float)vposarr.size();
-        float maxdim = std::max(abs(minvec.x - maxvec.x), std::max(abs(minvec.y - maxvec.y), abs(minvec.z - maxvec.z)));
-        for (int i=0;i<vposarr.size();i++) {
-            vposarr.at(i) = vposarr.at(i) * 2 / maxdim;
-        }
+        norm_vec_arr(vposarr);
         for(int frame=0;frame<frames;frame++) { 
             std::vector<float> zbuf(iw * ih, INFINITY);
             std::string num = std::to_string(frame);
@@ -79,12 +52,12 @@ int main(int argc, char **argv) {
             std::string header = "P6\n" + std::to_string(iw) + "\n" + std::to_string(ih) + "\n255\n";
             out.write(header.c_str(), header.size());
             //do stuff here!
-            matr3 rotmat = eul2mat(0, 2 * M_PI * frame / frames, 0);
+            matr3 rotmat = eul2mat(0, TAU * frame / frames, 0);
             for(int i=0;i<triindarr.size();i+=3) {
-                std::vector<vec3> parr = {rotmat.transform(vposarr.at(triindarr.at(i))), 
-                                          rotmat.transform(vposarr.at(triindarr.at(i + 1))), 
-                                          rotmat.transform(vposarr.at(triindarr.at(i + 2)))};
-                long col = 255.0f * i / triindarr.size();
+                std::vector<vec3> parr = {rotmat.transform(vposarr.at(triindarr[i] - 1)) * 180 + vec3(200, 200, 0), 
+                                          rotmat.transform(vposarr.at(triindarr[i + 1] - 1)) * 180 + vec3(200, 200, 0), 
+                                          rotmat.transform(vposarr.at(triindarr[i + 2] - 1)) * 180 + vec3(200, 200, 0)};
+                long col = 0x010101 * (255 * i / triindarr.size());
                 draw_tri_zbuf(parr, iw, ih, scrarr, zbuf, col);
             }
             //stop doing stuff!
@@ -100,10 +73,10 @@ int main(int argc, char **argv) {
             out.write(carr.data(), carr.size());
         }
         char buf[20];
-        std::cout << "done with image creation, starting gif conversion\n";
-        sprintf(buf, "magick -delay 1.66 -loop 0 %s*.ppm %s.gif", argv[1], argv[1]);
+        std::cout << "done with image creation, starting video conversion\n";
+        sprintf(buf, "magick -delay 1.66 -loop 0 %s*.ppm %s%s", argv[1], argv[1], argv[3]);
         system(buf);
-        std::cout << "done with gif conversion, starting cleanup\n";
+        std::cout << "done with video conversion, starting cleanup\n";
         for(int frame=0;frame<frames;frame++) {
             sprintf(buf, "del %s%04d.ppm", argv[1], frame);
             system(buf);
@@ -111,7 +84,8 @@ int main(int argc, char **argv) {
         std::cout << "done cleaning up\n";
     }
     else {
-        std::cerr << "submit the filename after!";
+        std::cerr << "arguments go output file name, input file name, and then output file extension\n";
+        std::cerr << "ex: ./ar testFile object.obj .gif";
     }
     return 0;
 }

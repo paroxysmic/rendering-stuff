@@ -15,7 +15,16 @@ int main(int argc, char **argv) {
         std::string header = "P6\n" + std::to_string(iw) + "\n" + std::to_string(ih) + "\n255\n";
         out.write(header.c_str(), header.size());
         clock_t t = clock();
+        std::vector<float> zbuf(iw * ih, 1e100);
         //do your things here
+        std::vector<vec3> parr(3);
+        std::vector<long> colarr = {RED, GREEN, BLUE, BLACK};
+        for(int i=0;i<100;i++) {
+            parr[0] = vec3(rand() % 400 - 200, rand() % 400 - 200, rand() % 400 - 200) + vec3(200, 200, 0);
+            parr[1] = vec3(rand() % 400 - 200, rand() % 400 - 200, rand() % 400 - 200) + vec3(200, 200, 0);
+            parr[2] = vec3(rand() % 400 - 200, rand() % 400 - 200, rand() % 400 - 200) + vec3(200, 200, 0);
+            draw_tri_zbuf(parr, iw, ih, scrarr, zbuf, 0x010101 * (i * 255/ 100));
+        }
         t = clock() - t;
         std::cerr << "done with writing to arr!\n";
         std::cerr << "took " << t << "ticks, or " << (float)t / 1000 << "seconds\n";
