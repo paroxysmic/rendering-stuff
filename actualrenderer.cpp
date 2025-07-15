@@ -43,6 +43,7 @@ int main(int argc, char **argv) {
             }
         }
         norm_vec_arr(vposarr);
+        vec3 sceneligvec{1, 1, 1};
         for(int frame=0;frame<frames;frame++) { 
             std::vector<float> zbuf(iw * ih, INFINITY);
             std::string num = std::to_string(frame);
@@ -57,7 +58,13 @@ int main(int argc, char **argv) {
                 std::vector<vec3> parr = {rotmat.transform(vposarr.at(triindarr[i] - 1)) * 180 + vec3(200, 200, 0), 
                                           rotmat.transform(vposarr.at(triindarr[i + 1] - 1)) * 180 + vec3(200, 200, 0), 
                                           rotmat.transform(vposarr.at(triindarr[i + 2] - 1)) * 180 + vec3(200, 200, 0)};
-                long col = 0x010101 * (255 * i / triindarr.size());
+                vec3 ligvec = (parr[0] - parr[2]).cross(parr[1] - parr[2]).norm(); 
+                //finding cross product gives us the normal ofthe polygon without having to compute vertex normals
+                //then after finding the normal, we can then dot it with a constant lighting vector
+                //giving us the relative "alignment" of the two as a dihedral angle 
+                //bcz we normed the vectors in a previous step, this will simply return the cosine of the dihedral angle
+                //which ranges from -1 to 1, which we then normalize to 0 to 1, giving us the lighting
+                long col = 0x010101 * (int)(255 * (ligvec.dot(sceneligvec.norm()) + 1) / 2);
                 draw_tri_zbuf(parr, iw, ih, scrarr, zbuf, col);
             }
             //stop doing stuff!
