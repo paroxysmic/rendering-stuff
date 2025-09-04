@@ -162,41 +162,6 @@ matr3 eul2mat(float xrot, float yrot, float zrot) {
     matr3 zrotmat = matr3(cz, -sz, 0, sz, cz, 0, 0, 0, 1);
     return xrotmat.matmul(yrotmat.matmul(zrotmat));
 }
-std::vector<double> msort(std::vector<double> arr) {
-    if (arr.size() == 1) {
-        return arr;
-    }
-    else if (arr.size() == 2) {
-        return std::vector<double> {arr[0], arr[1]};
-    }
-    else {
-        int split = arr.size() / 2;
-        std::vector<double> lhs;
-        std::vector<double> rhs;
-        for(int i=0;i<split;i++) {
-            lhs.push_back(arr.at(i));
-        }
-        for(int i=split;i<arr.size();i++) {
-            rhs.push_back(arr.at(i));
-        }
-        lhs = msort(lhs);
-        rhs = msort(rhs);
-        std::vector<double> sarr;
-        int lp = 0;
-        int rp = 0;
-        while(lp < lhs.size() && rp < rhs.size()) {
-            if (lhs.at(lp) > rhs.at(rp)) {
-                sarr.push_back(rhs.at(rp++));
-            }
-            else {
-                sarr.push_back(lhs.at(lp++));
-            }
-        }   
-        while(lp < lhs.size()) { sarr.push_back(lhs.at(lp++)); }
-        while(rp < rhs.size()) { sarr.push_back(rhs.at(rp++)); }
-        return sarr;
-    }
-}   
 void draw_tri_zbuf(std::vector<vec3> cpa, int iw, int ih, std::vector<long> &image, std::vector<float> &zbuf, long color) {
     int xmin = std::floor(std::min({(float)iw - 1, cpa[0].x, cpa[1].x, cpa[2].x}));
     int xmax = std::ceil(std::max({0.0f, cpa[0].x, cpa[1].x, cpa[2].x}));

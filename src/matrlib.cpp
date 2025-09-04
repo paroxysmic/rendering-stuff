@@ -152,7 +152,3 @@ void matr3::desc() {
     std::cout << '|' << a10 << ' ' << a11 << ' ' << a12 << '|' << '\n';
     std::cout << '|' << a20 << ' ' << a21 << ' ' << a22 << '|' << '\n';    
 }
-//TODO: implement the general matrix type
-//the setpix function is deprecated, only use for explicit testing!
-//literally directly setting pixels makes it twice as fast 
-//but then there's no bounds check so just be better ig 
