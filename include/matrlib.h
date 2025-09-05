@@ -31,12 +31,15 @@ struct vec3 {
     void desc();
 };
 struct matr3 {
-    float a00, a01, a02, a10, a11, a12, a20, a21, a22, det, trace;
+    float data[9];
+    float det;
     matr3(float a, float b, float c, float d, float e, float f, float g, float h, float i);
+    matr3(float arr[9]);
+    matr3();
     matr3 operator+(const matr3 &a) const;
     matr3 operator-(const matr3 &a) const;
-    matr3 operator*(const float a) const;
-    matr3 operator/(const float a) const;
+    matr3 operator*(const float &a) const;
+    matr3 operator/(const float &a) const;
     vec3 transform(const vec3 &a) const;
     matr3 matmul(const matr3 &a) const;
     matr3 transp() const;
@@ -93,6 +96,10 @@ class Matrix {
                 }
             }
         }
-
+        //TODO: implement this 
+        Matrix gaussianElim(const Matrix& mat) {
+            //how to efficiently do elementary ops?
+                  
+        }
     };
 #endif

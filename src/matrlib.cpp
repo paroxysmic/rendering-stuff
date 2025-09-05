@@ -87,68 +87,107 @@ void vec3::desc() {
     std::cout << '|' << x << ' ' << y << ' ' << z << "|\n";
 }
 matr3::matr3(float a, float b, float c, float d, float e, float f, float g, float h, float i) {
-    a00 = a;
-    a01 = b;
-    a02 = c;
-    a10 = d;
-    a11 = e;
-    a12 = f;
-    a20 = g;
-    a21 = h;
-    a22 = i;
+    data[0] = a;
+    data[1] = b;
+    data[2] = c;
+    data[3] = d;
+    data[4] = e;
+    data[5] = f;
+    data[6] = g;
+    data[7] = h;
+    data[8] = i;
     det = a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
-    trace = a00 + a11 + a22;
+}
+matr3::matr3(float arr[9]) {
+    for(int i=0;i<9;i++) {
+        data[i] = arr[i];
+    }
+    det = data[0] * (data[4] * data[8] - data[5] * data[7]) - 
+            data[1] * (data[3] * data[8] - data[5] * data[6]) + 
+            data[2] * (data[3] * data[7] - data[4] * data[6]);
+}
+matr3::matr3() {
+    for(int i=0;i<9;i++) {
+        data[i] = 0;
+    }
+    det = 0;
 }
 matr3 matr3::operator+(const matr3 &a) const {
-    return matr3(a00 + a.a00, a01 + a.a01, a02 + a.a02, a10 + a.a10, a11 + a.a11, a12 + a.a12, a20 + a.a20, a21 + a.a21, a22 + a.a22);
+    float ret[9];
+    for(int i=0;i<9;i++) {
+        ret[i] = data[i] + a.data[i];
+    }
+    return matr3(ret);
 }
 matr3 matr3::operator-(const matr3 &a) const {
-    return matr3(a00 - a.a00, a01 - a.a01, a02 - a.a02, a10 - a.a10, a11 - a.a11, a12 - a.a12, a20 - a.a20, a21 - a.a21, a22 - a.a22);
+    float ret[9];
+    for(int i=0;i<9;i++) {
+        ret[i] = data[i] - a.data[i];
+    }
+    return matr3(ret);
 }
-matr3 matr3::operator*(const float a) const {
-    return matr3(a00 * a, a01 * a, a02 * a, a10 * a, a11 * a, a12 * a, a20 * a, a21 * a, a22 * a);
+matr3 matr3::operator*(const float &a) const {
+    float ret[9];
+    for(int i=0;i<9;i++) {
+        ret[i] = data[i] * a;
+    }
+    return matr3(ret);
 }
-matr3 matr3::operator/(const float a) const {
-    return matr3(a00 / a, a01 / a, a02 / a, a10 / a, a11 / a, a12 / a, a20 / a, a21 / a, a22 / a);
+matr3 matr3::operator/(const float &a) const {
+    float ret[9];
+    for(int i=0;i<9;i++) {
+        ret[i] = data[i] / a;
+    }
+    return matr3(ret);
 }
 vec3 matr3::transform(const vec3 &a) const {
     return vec3(a.x * a00 + a.y * a01 + a.z * a02, a.x * a10 + a.y * a11 + a.z * a12, a.x * a20 + a.y * a21 + a.z * a22);
 }
 matr3 matr3::matmul(const matr3 &a) const {
-    float b00, b01, b02, b10, b11, b12, b20, b21, b22;
-    b00 = a00 * a.a00 + a01 * a.a10 + a02 * a.a20;
-    b01 = a00 * a.a01 + a01 * a.a11 + a02 * a.a21;
-    b02 = a00 * a.a02 + a01 * a.a12 + a02 * a.a22;    
-    b10 = a10 * a.a00 + a11 * a.a10 + a12 * a.a20;
-    b11 = a10 * a.a01 + a11 * a.a11 + a12 * a.a21;
-    b12 = a10 * a.a02 + a11 * a.a12 + a12 * a.a22;
-    b20 = a20 * a.a00 + a21 * a.a10 + a22 * a.a20;
-    b21 = a20 * a.a01 + a21 * a.a11 + a22 * a.a21;
-    b22 = a20 * a.a02 + a21 * a.a12 + a22 * a.a22;
-    return matr3(b00, b01, b02, b10, b11, b12, b20, b21, b22);
+    float retarr[9];
+    for(int i=0;i<3;i++) {
+        for(int j=0;j<3;j++) {
+            float rt = 0;
+            for(int k=0;k<3;k++) {
+                rt += data[j + k * 3] * a.data[k + i * 3];
+            }
+            retarr[j + i * 3] = rt;
+        }
+    }
+    return matr3(retarr);
 }
 matr3 matr3::transp() const {
-    return matr3(a00, a10, a20, a01, a11, a21, a02, a12, a22);
-}
+    float retarr[9];
+    for(int i=0;i<3;i++) {
+        for(int j=0;j<3;j++) {
+            retarr[i + j * 3] = data[j + i * 3];
+        }
+    } 
+    return matr3(retarr);
+} 
 matr3 matr3::inver() const {
     if (det == 0) {
         throw std::invalid_argument("non-invertible matrix! det is zero!");
     }
-    float b00, b01, b02, b10, b11, b12, b20, b21, b22;
-    b00 = a11 * a22 - a12 * a21;
-    b01 = a02 * a21 - a01 * a22;
-    b02 = a01 * a12 - a02 * a11;
-    b10 = a12 * a20 - a10 * a22;
-    b11 = a00 * a22 - a02 * a20;
-    b12 = a02 * a10 - a00 * a12;
-    b20 = a10 * a21 - a11 * a20;
-    b21 = a01 * a20 - a00 * a21;
-    b22 = a00 * a11 - a01 * a10;
+    float b0, b1, b2, b3, b4, b5, b6, b7, b8;
+    b0 = a4 * a8 - a5 * a7;
+    b1 = a2 * a7 - a1 * a8;
+    b2 = a1 * a5 - a2 * a4;
+    b3 = a5 * a6 - a3 * a8;
+    b4 = a0 * a8 - a2 * a6;
+    b5 = a2 * a3 - a0 * a5;
+    b6 = a3 * a7 - a4 * a6;
+    b7 = a1 * a6 - a0 * a7;
+    b8 = a0 * a4 - a1 * a3;
     //calculating adjugate matrix above, transposed
-    return matr3(b00, b01, b02, b10, b11, b12, b20, b21, b22) / det;
+    return matr3(b0, b1, b2, b3, b4, b5, b6, b7, b8) / det;
 }
 void matr3::desc() {
-    std::cout << '|' << a00 << ' ' << a01 << ' ' << a02 << '|' << '\n';
-    std::cout << '|' << a10 << ' ' << a11 << ' ' << a12 << '|' << '\n';
-    std::cout << '|' << a20 << ' ' << a21 << ' ' << a22 << '|' << '\n';    
+    for(int i=0;i<3;i++) {
+        std::cout << '| ';
+        for(int j=0;j<3;j++) {
+            std::cout << data[j + i * 3] << ' ';
+        }
+        std::cout << "|\n";
+    } 
 }
