@@ -1,5 +1,5 @@
 br: obj/br.o obj/dl.o obj/ml.o
-	g++ -Iinclude obj/br.o obj/dl.o obj/ml.o -Wall -O3 -o bin/br
+	g++ -Iinclude obj/br.o obj/dl.o obj/ml.o -Wall -O3 -o br
 obj/br.o: src/basicrasterizer.cpp
 	g++ -Iinclude -c src/basicrasterizer.cpp -o obj/br.o
 obj/dl.o: src/drawlib.cpp
@@ -9,5 +9,7 @@ obj/ml.o: src/matrlib.cpp
 
 .PHONY: clean
 
-cleanbr:
-	rm -f obj/br.o obj/dl.o obj/ml.o bin/br
+clean:
+	CLEAN br
+	@rm -f obj/br.o obj/dl.o obj/ml.o br
+	

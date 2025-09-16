@@ -162,7 +162,7 @@ matr3 eul2mat(float xrot, float yrot, float zrot) {
     matr3 zrotmat = matr3(cz, -sz, 0, sz, cz, 0, 0, 0, 1);
     return xrotmat.matmul(yrotmat.matmul(zrotmat));
 }
-void draw_tri_zbuf(std::vector<vec3> cpa, int iw, int ih, std::vector<long> &image, std::vector<float> &zbuf, long color) {
+void draw_tri_zbuf(std::vector<vec3> &cpa, int iw, int ih, std::vector<long> &image, std::vector<float> &zbuf, long color) {
     int xmin = std::floor(std::min({(float)iw - 1, cpa[0].x, cpa[1].x, cpa[2].x}));
     int xmax = std::ceil(std::max({0.0f, cpa[0].x, cpa[1].x, cpa[2].x}));
     int ymin = std::floor(std::min({(float)ih - 1, cpa[0].y, cpa[1].y, cpa[2].y}));

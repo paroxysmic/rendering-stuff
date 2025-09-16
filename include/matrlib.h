@@ -43,63 +43,6 @@ struct matr3 {
     vec3 transform(const vec3 &a) const;
     matr3 matmul(const matr3 &a) const;
     matr3 transp() const;
-    matr3 inver() const;
     void desc();
 };
-template <typename T, uint16_t rownum, uint16_t colnum>
-class Matrix {
-    private: 
-    std::array<T, colnum * rownum> data;
-    public:
-        uint16_t getCols() { return colnum; }
-        uint16_t getRows() { return rownum; }
-        //stands for get element at, does what it says on the tin
-        T gea(uint16_t row, uint16_t col) { return data.at(col + row * colnum); }
-        //stands for set element at, does what it says on the tin
-        void sea(uint16_t row, uint16_t col, T val) { data.at(col + row * colnum) = val; }
-        Matrix operator+ (const Matrix& other) {
-            if((other.getCols() != colnum) || (other.getRows() != rows)) {
-                throw std::invalid_argument("columns and rows must be equal!");
-            }
-            Matrix res;
-            for(int i=0;i<rows;i++) {
-                for(int j=0;j<cols;j++) {
-                    sea(j, i, gea(j, i) + other.gea(j, i));
-                }
-            }
-            return res;
-        }
-        Matrix operator- (const Matrix& other) {
-            if((other.getCols() != colnum) || (other.getRows() != rows)) {
-                throw std::invalid_argument("columns and rows must be equal!");
-            }
-            Matrix res;
-            for(int i=0;i<rows;i++) {
-                for(int j=0;j<cols;j++) {
-                    sea(j, i, gea(j, i) - other.gea(j, i));
-                }
-            }
-            return res;
-        }
-        Matrix operator* (const Matrix& other) {
-            if(getCols() != other.getRows()) {
-                throw std::invalid_argument("m1's cols need to equal m2's rows!");
-            }
-            Matrix<T, rownum, other.getCols()> res;
-            for(int i=0;i<other.getCols();i++) {
-                for(int j=0;j<rownum;j++) {
-                    T rt = 0;
-                    for(int k=0;k<colnum;k++) {
-                        rt += gea(i, k) * other.gea(k, j);
-                    }
-                    sea(i, j, rt);
-                }
-            }
-        }
-        //TODO: implement this 
-        Matrix gaussianElim(const Matrix& mat) {
-            //how to efficiently do elementary ops?
-                  
-        }
-    };
 #endif

@@ -19,7 +19,7 @@ long floattocol(float r, float g, float b);
 float sidecheck(vec2 test, vec2 orig, vec2 end);
 float areacalc(std::vector<vec2> *cpa);
 matr3 eul2mat(float xrot, float yrot, float zrot);
-void draw_tri_zbuf(std::vector<vec3> cpa, int iw, int ih, std::vector<long> &image, std::vector<float> &zbuf, long color);
+void draw_tri_zbuf(std::vector<vec3> &cpa, int iw, int ih, std::vector<long> &image, std::vector<float> &zbuf, long color);
 vec3 barycoords(vec2 A, vec2 B, vec2 C, vec2 P);
 void norm_vec_arr(std::vector<vec3> &varr);
 #endif

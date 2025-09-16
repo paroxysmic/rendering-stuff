@@ -10,12 +10,15 @@
 #include <math.h>
 #include "matrlib.h"
 #include "drawlib.h"
-const int iw = 50;
-const int ih = 50;
+const int iw = 200;
+const int ih = 200;
 const int frames = 60;
 int main(int argc, char **argv) {
     if(argc == 4){
-        std::ifstream obj(argv[2]);
+        std::string outputFileName(argv[1]);
+        std::string inputFileName(argv[2]);
+        std::string outputFileExtension(argv[3]);
+        std::ifstream obj(inputFileName);
         std::vector<vec3> vposarr;
         std::vector<int> triindarr;
         std::string line;
@@ -34,8 +37,10 @@ int main(int argc, char **argv) {
             num.insert(num.begin(), 4 - num.length(), '0');
             std::ofstream out(argv[1] + num + ".ppm", std::ios::binary);
             std::vector<long> scrarr(iw * ih, 0xffffff);
-            std::string header = "P6\n" + std::to_string(iw) + "\n" + std::to_string(ih) + "\n255\n";
-            out.write(header.c_str(), header.size());
+            char header[50];
+            sprintf(header, "P6\n%d\n%d\n255\n");
+            //std::string header = "P6\n" + std::to_string(iw) + "\n" + std::to_string(ih) + "\n255\n";
+            out.write(header, strlen(header));
             //do stuff here!
             clock_t t;
             matr3 rotmat = eul2mat(TAU / 2, TAU * frame / frames, TAU * frame / frames);
@@ -66,14 +71,15 @@ int main(int argc, char **argv) {
         }
         double drawtime = clock() - t;
         t = clock();
-        char buf[100];
+        std::string buf;
         std::cout << "done with image creation, starting video conversion (took " << drawtime * 1e-3 << " seconds!)\n";
-        sprintf(buf, "magick -delay 4 -loop 0 %s*.ppm %s%s", argv[1], argv[1], argv[3]);
+        buf = "magick -delay 4 -loop 0 " + std::string(argv[1]) + "*.ppm " + std::string(argv[1]) + argv[3];
         system(buf);
         double convtime = clock() - t;
         t = clock();
         std::cout << "done with video conversion, starting cleanup (took " << convtime * 1e-3 << "seconds!)\n";
         for(int frame=0;frame<frames;frame++) {
+            buf += "del" + argv[1];
             sprintf(buf, "del %s%04d.ppm", argv[1], frame);
             system(buf);
         }
