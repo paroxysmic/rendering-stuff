@@ -45,4 +45,5 @@ struct matr3 {
     matr3 transp() const;
     void desc();
 };
+matr3 eul2mat(float xrot, float yrot, float zrot);
 #endif

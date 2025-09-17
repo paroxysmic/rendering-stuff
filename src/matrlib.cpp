@@ -175,3 +175,16 @@ void matr3::desc() {
         std::cout << "|\n";
     } 
 }
+matr3 eul2mat(float xrot, float yrot, float zrot) {
+    float sx, cx, sy, cy, sz, cz;
+    sx = sin(xrot);
+    cx = cos(xrot);
+    sy = sin(yrot);
+    cy = cos(yrot);
+    sz = sin(zrot);
+    cz = cos(zrot);
+    matr3 xrotmat = matr3(1, 0, 0, 0, cx, -sx, 0, sx, cx); 
+    matr3 yrotmat = matr3(cy, 0, sy, 0, 1, 0, -sy, 0, cy);
+    matr3 zrotmat = matr3(cz, -sz, 0, sz, cz, 0, 0, 0, 1);
+    return xrotmat.matmul(yrotmat.matmul(zrotmat));
+}

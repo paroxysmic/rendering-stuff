@@ -22,6 +22,7 @@ int main(int argc, char **argv) {
         std::vector<vec3> vposarr;
         std::vector<int> triindarr;
         std::string line;
+        std::string filenamebuf;
         while(std::getline(obj, line)) {
             if(line[0] == 'v' && line[1] == ' ') {
                 
@@ -35,11 +36,11 @@ int main(int argc, char **argv) {
             std::vector<float> zbuf(iw * ih, INFINITY);
             std::string num = std::to_string(frame);
             num.insert(num.begin(), 4 - num.length(), '0');
-            std::ofstream out(argv[1] + num + ".ppm", std::ios::binary);
+            std::ofstream out(outputFileName + num + ".ppm", std::ios::binary);
+            filenamebuf += outputFileName + num + ".ppm ";
             std::vector<long> scrarr(iw * ih, 0xffffff);
-            char header[50];
-            sprintf(header, "P6\n%d\n%d\n255\n");
-            //std::string header = "P6\n" + std::to_string(iw) + "\n" + std::to_string(ih) + "\n255\n";
+            char header[30];
+            sprintf(header, "P6\n%d\n%d\n255\n", iw, ih);
             out.write(header, strlen(header));
             //do stuff here!
             clock_t t;
@@ -57,7 +58,6 @@ int main(int argc, char **argv) {
                 long col = colorlerp(0xff00ff, 0x0000ff, (ligvec.dot(sceneligvec.norm()) + 1) / 2);
                 draw_tri_zbuf(parr, iw, ih, scrarr, zbuf, col);
             }
-            //stop doing stuff!
             std::vector<char> carr;
             for (int y = 0; y < ih; y++) {
                 for (int x = 0; x < iw; x++) {
@@ -73,22 +73,18 @@ int main(int argc, char **argv) {
         t = clock();
         std::string buf;
         std::cout << "done with image creation, starting video conversion (took " << drawtime * 1e-3 << " seconds!)\n";
-        buf = "magick -delay 4 -loop 0 " + std::string(argv[1]) + "*.ppm " + std::string(argv[1]) + argv[3];
-        system(buf);
+        buf = "magick -delay 4 -loop 0 " + outputFileName + "*.ppm " + outputFileName + outputFileExtension;
+        system(buf.c_str());
         double convtime = clock() - t;
         t = clock();
         std::cout << "done with video conversion, starting cleanup (took " << convtime * 1e-3 << "seconds!)\n";
-        for(int frame=0;frame<frames;frame++) {
-            buf += "del" + argv[1];
-            sprintf(buf, "del %s%04d.ppm", argv[1], frame);
-            system(buf);
-        }
+        system(("rm " + filenamebuf).c_str());
         double cleantime = clock() - t;
         std::cout << "done cleaning up (took " << cleantime * 1e-3 << "seconds!)\n";
     }
     else {
         std::cerr << "arguments go output file name, input file name, and then output file extension\n";
-        std::cerr << "ex: ./ar testFile object.obj .gif";
+        std::cerr << "ex: ./rast testFile object.obj .gif";
     }
     return 0;
 }
