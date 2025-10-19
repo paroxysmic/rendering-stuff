@@ -1,1 +1,1 @@
-basic obj viewer that outputs to ppm file
+3d model viewer

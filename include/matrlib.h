@@ -1,49 +1,30 @@
-#ifndef MATRLIB_H
-#define MATRLIB_H
-#include <array>
-#include <cstdint>
-struct vec2 {
-    float x, y, len;
-    vec2(const float a=0, const float b=0);
-    vec2 operator+(const vec2 &a) const;
-    vec2 operator-(const vec2 &a) const; 
-    vec2 operator*(const float a) const;
-    vec2 operator/(const float a) const;
-    vec2 norm() const;
-    vec2 rot(const float a) const;
-    float dot(const vec2 &a) const;
-    vec2 projonto(const vec2 &a) const;
-    void desc();
-};
-struct vec3 {
-    float x, y, z, len;
-    vec2 xy;
-    vec3(float a=0, float b=0, float c=0);
-    vec3 operator+(const vec3 &a) const;
-    vec3 operator-(const vec3 &a) const;
-    vec3 operator*(const float a) const;
-    vec3 operator/(const float a) const;
-    vec3 norm() const;
-    vec3 cross(const vec3 &a) const;
-    float dot(const vec3 &a) const;
-    vec3 projonto(const vec3 &a) const;
-    vec2 camproj() const;
-    void desc();
-};
-struct matr3 {
-    float data[9];
-    float det;
-    matr3(float a, float b, float c, float d, float e, float f, float g, float h, float i);
-    matr3(float arr[9]);
-    matr3();
-    matr3 operator+(const matr3 &a) const;
-    matr3 operator-(const matr3 &a) const;
-    matr3 operator*(const float &a) const;
-    matr3 operator/(const float &a) const;
-    vec3 transform(const vec3 &a) const;
-    matr3 matmul(const matr3 &a) const;
-    matr3 transp() const;
-    void desc();
-};
-matr3 eul2mat(float xrot, float yrot, float zrot);
-#endif
+#pragma once
+#include <iostream>
+#include "vec2.h"
+#include "vec3.h"
+#include "matr3.h"
+#define TAU 6.283185307179586
+matr3 eul2mat(float xrot, float yrot, float zrot) {
+    float sx, cx, sy, cy, sz, cz;
+    sx = sin(xrot);
+    cx = cos(xrot);
+    sy = sin(yrot);
+    cy = cos(yrot);
+    sz = sin(zrot);
+    cz = cos(zrot);
+    matr3 xrotmat = matr3(1, 0, 0, 0, cx, -sx, 0, sx, cx); 
+    matr3 yrotmat = matr3(cy, 0, sy, 0, 1, 0, -sy, 0, cy);
+    matr3 zrotmat = matr3(cz, -sz, 0, sz, cz, 0, 0, 0, 1);
+    return zrotmat.matmul(yrotmat.matmul(xrotmat));
+}
+void vec2::desc() const noexcept{
+    std::cout << x << ' ' << y << '\n';
+}
+void vec3::desc() const noexcept{
+    std::cout << x << ' ' << y << ' ' << z << '\n';
+}
+void matr3::desc() const noexcept{
+    for(int i=0;i<3;i++) {
+        std::cout << data[3 * i] << ' ' << data[3 * i + 1] << ' ' << data[3 * i + 2] << "\n";
+    }
+}
