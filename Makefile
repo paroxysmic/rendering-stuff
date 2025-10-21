@@ -19,6 +19,5 @@ $(DBGOBJDIR)/%-dbg.o: $(LIBDIR)/%.cpp
 	g++ -c -g  $< -Iinclude -O0 -o $@
 .PHONY: clean print
 clean:
-	@rm -f $(DBGOBJFILES) $(OBJFILES) dbg-obj/rast-dbg.o obj/rast.o
-	@echo CLEAN $(DBGOBJFILES) dbg-obj/rast-dbg.o
-	@echo CLEAN $(OBJFILES) obj/rast.o 
+	@del /S /Q obj
+	@del /S /Q dbg-obj

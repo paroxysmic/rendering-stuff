@@ -1,18 +1,13 @@
 #include <iostream>
 #include "matrlib.h"
-
+#include "objhandling.h"
 int main() {
-    matr3 mat (0.06757158942368224,
-0.5083238138765098,
-0.8670169983299184,
-0.16216637140153745,
-0.05900869792928476,
-0.1990101445956055,
-0.22059761918014154,
-0.5356090930971459,
-0.6024263975955848);
-    mat.desc();
-    mat.inverse().desc();
-    mat.matmul(mat.inverse()).desc();
+    obj_3d OBJ = parse_OBJ("lpb/fixed.obj");
+    for(std::array<int, 9> arr: OBJ.facearr) {
+        for(int i=0;i<9;i++) {
+            std::cout << arr[i] << ' ';
+        }
+        std::cout << '\n';
+    }
     return 0;
 }

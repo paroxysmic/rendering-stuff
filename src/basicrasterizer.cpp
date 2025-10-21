@@ -12,10 +12,9 @@ const int iw = 1000;
 const int ih = 1000;
 const int frames = 60;
 int main(int argc, char **argv) {
-    if(argc == 4){
+    if(argc == 3){
         std::string outputFileName(argv[1]);
         std::string inputFileName(argv[2]);
-        std::string outputFileExtension(argv[3]);
         std::ifstream obj(inputFileName);
         std::vector<vec3> vposarr;
         std::vector<std::vector<int>> faceindarr;
@@ -45,11 +44,9 @@ int main(int argc, char **argv) {
         t = clock();
         for(int frame=0;frame<frames;frame++) { 
             std::vector<float> zbuf(iw * ih, INFINITY);
-            std::string num = std::to_string(frame);
-            num.insert(num.begin(), 4 - num.length(), '0');
+            std::string num = std::to_string(frame);;
             std::ofstream out(outputFileName + num + ".ppm", std::ios::binary);
-            filenamebuf += outputFileName + num + ".ppm ";
-            std::vector<long> scrarr(iw * ih);
+            std::vector<long> scrarr(iw * ih, 0xffffff);
             char header[30];
             sprintf(header, "P6\n%d\n%d\n255\n", iw, ih);
             out.write(header, strlen(header));
@@ -82,24 +79,18 @@ int main(int argc, char **argv) {
         t = clock();
         std::string buf;
         std::cout << "done with image creation, starting video conversion (took " << drawtime * 1e-3 << " seconds!)\n";
-        for(int frame=0;frame<frames;frame++) {
-            std::string num = std::to_string(frame);
-            num.insert(num.begin(), 4 - num.length(), '0');
-            buf = "magick " + outputFileName + num + ".ppm " + outputFileName + num + ".jpg";
-            system(buf.c_str());
-        }
-        buf = "magick -delay 4 -loop 0 " + outputFileName + "*.ppm " + outputFileName + outputFileExtension;
+        buf = "ffmpeg -hide_banner -loglevel error -f image2 -framerate 30 -i \"" + outputFileName + "%d.ppm\" " + outputFileName + ".mp4";
         system(buf.c_str());
         double convtime = clock() - t;
         t = clock();
         std::cout << "done with video conversion, starting cleanup (took " << convtime * 1e-3 << "seconds!)\n";
-        system(("rm " + filenamebuf).c_str());
+        system("del *.ppm");
         double cleantime = clock() - t;
         std::cout << "done cleaning up (took " << cleantime * 1e-3 << "seconds!)\n";
     }
     else {
-        std::cerr << "arguments go output file name, input file name, and then output file extension\n";
-        std::cerr << "ex: ./rast testFile object.obj .gif";
+        std::cout << "arguments go output file name, input file name\n";
+        std::cout << "ex: ./rast testFile object.obj";
     }
     return 0;
 } 

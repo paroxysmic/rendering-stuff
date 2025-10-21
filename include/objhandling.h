@@ -9,8 +9,10 @@ enum FaceFormat{
     PLAIN,
     TEXTURE,
     NORMAL,
-    BOTH
+    BOTH,
+    NONE
 };
+//all indices are 0-indexed bcz of the way i load the obj file
 struct obj_3d{
     std::vector<vec3> vposarr;
     std::vector<vec3> vnormarr;

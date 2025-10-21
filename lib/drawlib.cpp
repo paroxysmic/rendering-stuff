@@ -46,6 +46,7 @@ vec3 barycoords(vec2 A, vec2 B, vec2 C, vec2 P) {
     }
     return vec3(v, w, u);
 }
+
 long colorlerp(long a, long b, float t) {
     int red = ((a >> 16) & 0xff) * (1 - t) + ((b >> 16) & 0xff) * t;
     int gre = ((a >> 8) & 0xff) * (1 - t) + ((b >> 8) & 0xff) * t;

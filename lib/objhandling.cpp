@@ -62,9 +62,10 @@ obj_3d parse_OBJ(std::string objpath){
     std::string line;
     std::fstream objfile(objpath);
     obj_3d obj;
+    obj.faceformat = NONE;
     obj.gonebad = false;
     int lineind = 0;
-    while(std::getline(objfile, line)){
+    while(std::getline(objfile, line) && !obj.gonebad){
         std::vector<std::string> linechunks = scuffed_split(line, " ");
         int chunknum = linechunks.size();
         if(linechunks[0] == "v"){
@@ -105,43 +106,57 @@ obj_3d parse_OBJ(std::string objpath){
             else {obj.gonebad = true;}
         }
         if(linechunks[0] == "f"){
-            std::vector<std::string> chunk1 = scuffed_split(line, "/");
             std::array<int, 9> face;
-            switch(chunk1.size()){
-                case 1:
-                    obj.faceformat = PLAIN;
-                    break;
-                case 2:
-                    obj.faceformat = TEXTURE;
-                    break;
-                case 3:
-                    if(chunk1.at(1) == "") {obj.faceformat = NORMAL;}
-                    else {obj.faceformat = BOTH;}
-                    break;
-                default:
-                    obj.gonebad = true;
-                    break;
+            face.fill(0);
+            if(obj.faceformat == NONE){
+                std::vector<std::string> chunk1 = scuffed_split(linechunks[1], "/");
+                switch(chunk1.size()){
+                    case 1:
+                        obj.faceformat = PLAIN;
+                        break;
+                    case 2:
+                        obj.faceformat = TEXTURE;
+                        break;
+                    case 3:
+                        if(chunk1.at(1) == "") {obj.faceformat = NORMAL;}
+                        else {obj.faceformat = BOTH;}
+                        break;
+                    default:
+                        obj.gonebad = true;
+                        break;
+                }
             }
-            switch(obj.faceformat) {
-                case PLAIN:
-                    
-                    break;
-                case TEXTURE:
-                    break;
-                case NORMAL:
-                    break;
-                case BOTH:
-                    break;
+            std::vector<std::string> chunknums;
+            for(int i=0;i<3;i++) {
+                switch(obj.faceformat) {
+                    case PLAIN:
+                        face.at(i * 3) = std::stoi(linechunks.at(i + 1)) - 1;
+                        break;
+                    case TEXTURE:
+                        chunknums = scuffed_split(linechunks.at(i + 1), "/");
+                        face.at(i * 3) = std::stoi(chunknums.at(0)) - 1;
+                        face.at(i * 3 + 1) = std::stoi(chunknums.at(1)) - 1;
+                        break;
+                    case NORMAL:
+                        chunknums = scuffed_split(linechunks.at(i + 1), "//");
+                        face.at(i * 3) = std::stoi(chunknums.at(0)) - 1;
+                        face.at(i * 3 + 2) = std::stoi(chunknums.at(1)) - 1;
+                        break;
+                    case BOTH:
+                        chunknums = scuffed_split(linechunks.at(i + 1), "/");
+                        for(int j=0;j<3;j++) {
+                            face.at(i * 3 + j) = std::stoi(chunknums.at(j)) - 1;   
+                        }
+                        break;
+                }
             }
             obj.facearr.push_back(face);
         }   
-        if(obj.gonebad) {
-            break;
-        }
+        lineind++;
     }
     if(obj.gonebad) {
         std::cerr << "FILE FORMATTED BADLY\nFILENAME: " + objpath 
-        + "\nAT LINE " + std::to_string(lineind); 
+        + "\nAT LINE " << lineind << "\nFORMAT: " << obj.faceformat; 
     }
     return obj;
 }

@@ -1,7 +1,12 @@
-*.ppm
 *.exe
-*.mp4
-*.gif
 *.o
 *.out
+
+*.gif
+*.mp4
+*.png
+*.ppm
+*.qoi
+
+*.mtl
 *.obj
