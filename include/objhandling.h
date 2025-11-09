@@ -1,9 +1,10 @@
 #pragma once
-#include <string>
-#include <vector>
+#include <algorithm>
+#include <array>
 #include <fstream>
 #include <iostream>
-#include <array>
+#include <string>
+#include <vector>
 #include "matrlib.h"
 enum FaceFormat{
     PLAIN,
@@ -21,9 +22,10 @@ struct obj_3d{
     FaceFormat faceformat;
     bool gonebad;
 };
+//this is bad, should be refactored/removed depending on the severity of this issue
 std::vector<std::string> scuffed_split(std::string string, std::string delimiter);
-void norm_vec_arr(std::vector<vec3> &varr);
-//NOT IMPLEMENTED YET
 obj_3d parse_OBJ(std::string objpath);
 //NOT IMPLEMENTED YET
 obj_3d parse_STL(std::string objpath);
+
+void normalize_OBJ(obj_3d &obj);

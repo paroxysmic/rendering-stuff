@@ -7,6 +7,15 @@
 *.png
 *.ppm
 *.qoi
+*.tga
 
 *.mtl
 *.obj
+
+*.txt
+
+.vscode
+
+rast
+rast-dbg
+test

@@ -1,13 +1,6 @@
 #include <iostream>
-#include "matrlib.h"
-#include "objhandling.h"
+#include <imageio.h>
 int main() {
-    obj_3d OBJ = parse_OBJ("lpb/fixed.obj");
-    for(std::array<int, 9> arr: OBJ.facearr) {
-        for(int i=0;i<9;i++) {
-            std::cout << arr[i] << ' ';
-        }
-        std::cout << '\n';
-    }
+    Image image = readImageFromPPM("diablo3_pose/d3p_diffuse.ppm");
     return 0;
 }
