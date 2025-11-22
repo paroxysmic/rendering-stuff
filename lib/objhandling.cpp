@@ -10,109 +10,61 @@ std::vector<std::string> scuffed_split(std::string s, std::string delim) {
     chunks.push_back(s);
     return chunks;
 }
+std::vector<std::string> split(std::string s, char delim) {
+    std::vector<std::string> chunks;
+    std::string chunk;
+    std::stringstream ss(s);
+    while(std::getline(ss, chunk, delim)) {
+        chunks.push_back(chunk);
+    }
+    return chunks;
+}
 
-obj_3d parse_OBJ(std::string objpath){
+obj_3d parse_OBJ(std::string objpath) {
     std::string line;
-    std::fstream objfile(objpath);
+    std::fstream inp(objpath);
+    if(!inp.is_open()) {
+        inp.close();
+        std::cout << "file does not exist! aborting now\n";
+        exit(-1);
+    }
     obj_3d obj;
-    obj.faceformat = NONE;
-    obj.gonebad = false;
-    int lineind = 0;
-    while(std::getline(objfile, line) && !obj.gonebad){
-        std::vector<std::string> linechunks = scuffed_split(line, " ");
-        int chunknum = linechunks.size();
-        if(linechunks[0] == "v"){
-            if(chunknum == 4 || chunknum == 5){
-                float x = std::stof(linechunks[1]);
-                float y = std::stof(linechunks[2]);
-                float z = std::stof(linechunks[3]);
-                if(chunknum == 5) {
-                    float w = std::stof(linechunks[4]);
-                    x /= w;
-                    y /= w;
-                    z /= w;
-                }
-                obj.vposarr.push_back(vec3{x, y, z});
-            }
-            else {obj.gonebad = true;}
+    std::stringstream ss;
+    while(std::getline(inp, line)) {
+        ss.clear();
+        ss << line;
+        std::string tag;
+        ss >> tag;
+        if(tag == "v") {
+            float x, y, z;
+            ss >> x >> y >> z;
+            obj.vposarr.push_back(vec3{x, y, z});
         }
-        if(linechunks[0] == "vt"){
-            if(chunknum == 3 || chunknum == 4) {
-                float u = std::stof(linechunks[1]);
-                float v = std::stof(linechunks[2]);
-                if(chunknum == 4) {
-                    float w = std::stof(linechunks[3]);
-                    u /= w;
-                    v /= w;
-                }
-                obj.vtexarr.push_back(vec2{u, v});
-            }
-            else {obj.gonebad = true;}
+        if(tag == "vn") {
+            float x, y, z;
+            ss >> x >> y >> z;
+            obj.vnormarr.push_back(vec3{x, y, z});
         }
-        if(linechunks[0] == "vn"){
-            if(chunknum == 4) {
-                float x = std::stof(linechunks[1]);
-                float y = std::stof(linechunks[2]);
-                float z = std::stof(linechunks[3]);
-                obj.vnormarr.push_back((vec3{x, y, z}.norm()));
-            }
-            else {obj.gonebad = true;}
+        if(tag == "vt") {
+            float x, y;
+            ss >> x >> y;
+            obj.vtexarr.push_back(vec2{x, y});
         }
-        if(linechunks[0] == "f"){
-            std::array<int, 9> face;
-            face.fill(0);
-            if(obj.faceformat == NONE){
-                std::vector<std::string> chunk1 = scuffed_split(linechunks[1], "/");
-                switch(chunk1.size()){
-                    case 1:
-                        obj.faceformat = PLAIN;
-                        break;
-                    case 2:
-                        obj.faceformat = TEXTURE;
-                        break;
-                    case 3:
-                        if(chunk1.at(1) == "") {obj.faceformat = NORMAL;}
-                        else {obj.faceformat = BOTH;}
-                        break;
-                    default:
-                        obj.gonebad = true;
-                        break;
-                }
-            }
-            std::vector<std::string> chunknums;
+        if(tag == "f") {
+            std::array<int, 9> face{};
+            face.fill(-1);
+            std::string taggedVert;
             for(int i=0;i<3;i++) {
-                switch(obj.faceformat) {
-                    case PLAIN:
-                        face.at(i * 3) = std::stoi(linechunks.at(i + 1)) - 1;
-                        break;
-                    case TEXTURE:
-                        chunknums = scuffed_split(linechunks.at(i + 1), "/");
-                        face.at(i * 3) = std::stoi(chunknums.at(0)) - 1;
-                        face.at(i * 3 + 1) = std::stoi(chunknums.at(1)) - 1;
-                        break;
-                    case NORMAL:
-                        chunknums = scuffed_split(linechunks.at(i + 1), "//");
-                        face.at(i * 3) = std::stoi(chunknums.at(0)) - 1;
-                        face.at(i * 3 + 2) = std::stoi(chunknums.at(1)) - 1;
-                        break;
-                    case BOTH:
-                        chunknums = scuffed_split(linechunks.at(i + 1), "/");
-                        for(int j=0;j<3;j++) {
-                            face.at(i * 3 + j) = std::stoi(chunknums.at(j)) - 1;   
-                        }
-                        break;
+                ss >> taggedVert;
+                std::vector<std::string> chunks = split(taggedVert, '/');
+                for(int j=0;j<chunks.size();j++) {
+                    if(!chunks.at(j).empty()) {
+                        face[j + i * 3] = std::stoi(chunks.at(j)) - 1;
+                    }
                 }
             }
             obj.facearr.push_back(face);
-        }   
-        lineind++;
-    }
-    if(obj.gonebad) {
-        std::cerr << "FILE FORMATTED BADLY\nFILENAME: " + objpath 
-        + "\nAT LINE " << lineind << "\nFORMAT: " << obj.faceformat; 
-    }
-    if(!objfile.is_open()) {
-        std::cerr << "this file does not exist!\n";
+        }
     }
     return obj;
 }

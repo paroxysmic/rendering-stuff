@@ -1,4 +1,5 @@
-with open("tdf/cube.obj", "r") as f_in, open("tdf/cube_f.obj", "w") as f_out:
+file = input("which file to fix:")
+with open(file, "r") as f_in, open(file, "w") as f_out:
     for line in f_in:
         if not line.startswith("f "):
             f_out.write(line)

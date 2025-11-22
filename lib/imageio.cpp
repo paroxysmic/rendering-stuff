@@ -16,23 +16,28 @@ void Canvas::clear() {
     m_zbuf.resize(m_iw * m_ih, 1e10);
 }
 Image readImageFromPPM(std::string filename){
-    std::ifstream in(filename);
-    
+    std::ifstream in(filename, std::ios::binary);
+    char buf[32];
+    in.getline(buf, 32);
+    std::string headerchunk = buf;
+    if(headerchunk != "P6") {
+        std::cout << headerchunk << '\n';
+    }
     const int ih = 10;
     const int iw = 10;
     Image image(ih, iw);
     return image;
 }
-void writeCanvasToPPM(std::string filename, Canvas canvas) {
+void writeImageToPPM(std::string filename, Image &image) {
     std::ofstream out(filename, std::ios::binary);
-    int cw = canvas.m_iw;
-    int ch = canvas.m_ih;
-    std::string header = "P6\n" + std::to_string(cw) + "\n" + std::to_string(ch) + "%d\n255\n";
+    int cw = image.m_iw;
+    int ch = image.m_ih;
+    std::string header = "P6\n" + std::to_string(cw) + "\n" + std::to_string(ch) + "\n255\n";
     out.write(header.c_str(), header.size());
     std::vector<char> carr;
     carr.resize(cw * ch * 3, (char)0xff);
     for (int i = 0; i < cw * ch; i++) {
-            long cell = canvas.m_image[i];
+            long cell = image.m_image[i];
             int ind = i * 3;
             carr[ind] = (cell & 0xff0000) >> 16;
             carr[ind + 1] = (cell & 0x00ff00) >> 8;

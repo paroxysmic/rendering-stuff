@@ -22,6 +22,26 @@ long collerp(long a, long b, float t) {
     //color channel names are three letters to avoid a conflict with b
     return (red << 16) + (gre << 8) + blu;
 }
+void draw_line(vec2 sp, vec2 ep, long col, Image &image) {
+    bool steep = abs(sp.x - ep.x) < abs(sp.y - ep.y);
+    if(steep) {
+        std::swap(sp.x, sp.y);
+        std::swap(ep.x, ep.y);
+    }
+    if(sp.x > ep.x) {
+        std::swap(sp.x, ep.x);
+        std::swap(sp.y, ep.y);
+    }
+    for(int x=sp.x;x<ep.x;x++) {
+        float t = (x - sp.x) / (ep.x - sp.x);
+        int y = std::round(sp.y - (ep.y - sp.y) * t);
+        if(steep) {
+            image.m_image[y + x * image.m_iw] = col;
+        } else {            
+            image.m_image[x + y * image.m_iw] = col;
+        }
+    }
+}
 void draw_tri_zbuf(std::array<vec3, 3> cpa, Canvas &canvas, long color) {
     int xmin = std::min(canvas.m_iw - 1, (int)std::floor(std::min({cpa[0].x, cpa[1].x, cpa[2].x})));
     int xmax = std::max(0,             (int)std::ceil (std::max({cpa[0].x, cpa[1].x, cpa[2].x})));

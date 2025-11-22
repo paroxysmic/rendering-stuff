@@ -20,4 +20,4 @@ struct Canvas : public Image{
     void clear(); 
 };
 Image readImageFromPPM(std::string filename);
-void writeCanvasToPPM(std::string filename, Canvas canvas);
+void writeImageToPPM(std::string filename, Image &image);
